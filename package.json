@@ -1,0 +1,40 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "Repo for CSYE6225-Fall2020",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server --watch server",
+    "start": "node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davebhavin9/webapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davebhavin9/webapp/issues"
+  },
+  "homepage": "https://github.com/davebhavin9/webapp#readme",
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.1",
+    "mysql2": "^2.2.5",
+    "nodemon": "^2.0.4",
+    "password-validator": "^5.1.0",
+    "path": "^0.12.7",
+    "sequelize": "^6.3.5",
+    "sequelize-cli": "^6.2.0",
+    "uuid": "^8.3.0",
+    "uuidv4": "^6.2.3"
+  }
+}
