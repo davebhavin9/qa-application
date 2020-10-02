@@ -34,7 +34,7 @@ function editUser(decodeObject, payload, callback) {
     delete payload.createdAt
     delete payload.updatedAt
     if (payload.password) {
-        var hashedPassword = bcrypt.hashSync(payload.password, 8);
+        var hashedPassword = bcrypt.hashSync(payload.password, 10);
         delete payload.password;
         payload.password = hashedPassword
     }
