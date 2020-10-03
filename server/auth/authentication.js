@@ -24,20 +24,14 @@ async function getUser(dataObj, callback) {
     const SplitArray = dataObj.data.split(":")
     const userID = SplitArray[0];
     const password = SplitArray[1]
-    let startDate = new Date();
 
     
     await User.findOne({ where: { username: userID }, attributes: ['password'] }).then(
         async function (pass) {
             await bcrypt.compare(password, pass.password).then(async function (res) {
                 if (res == true) {
-                    let result = await User.findOne({ where: { username: userID, password: pass.password }, attributes: ['first_name', 'last_name', 'username', 'account_created', 'account_updated'] })
-                    result.dataValues.account_created = result.dataValues.createdAt;
-                    result.dataValues.account_updated = result.dataValues.updatedAt;
-                    delete result.dataValues.createdAt;
-                    delete result.dataValues.updatedAt;
-                    let endDate = new Date();
-                    let sec = endDate.getMilliseconds() - startDate.getMilliseconds()
+                    let result = await User.findOne({ where: { username: userID, password: pass.password }, attributes: ['id','first_name', 'last_name', 'username', 'Account_created', 'Account_updated'] })
+                    
                     return callback(null, result);
                 }
                 else {
@@ -56,16 +50,13 @@ async function editUser(data, payload, callback) {
     const SplitArray = data.split(':')
     const userID = SplitArray[0];
     const password = SplitArray[1];
-    let startDate = new Date();
     await User.findOne({ where: { username: userID }, attributes: ['password'] }).then(async function (pass) {
       
         await bcrypt.compare(password, pass.password).then(function (res) {
             if (res == true) {
-                User.update(payload, { where: { username: userID, password: pass.password }, attributes: { exclude: ['username', 'createdAt', 'updatedAt'] } })
+                User.update(payload, { where: { username: userID, password: pass.password }   })
                     .then(function (user) {
                         User.findOne({ where: { username: userID } }).then(function (user) {
-                            let endDate = new Date();
-                            let seconds = (endDate.getTime() - startDate.getTime()) / 1000;
                             return callback(null, "user updated")
                         }).catch(function (error) {
                             return callback(error, null);
