@@ -91,7 +91,7 @@ router.put("/v1/user/self", function (req, res) {
     }
     else {
       res.statusCode = 204
-      res.statusMessage = "NO CONTENT"
+      res.statusMessage = "User Updated"
       delete result.password;
       responseObj.result = result;
       res.send(responseObj);
@@ -106,7 +106,6 @@ router.post("/v1/user", [
   check('username').exists().isEmail(),
   check('password').exists()
 ], async function (req, res) {
-  let createUserStartTime = new Date();
   let responseObj = {};
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -137,8 +136,6 @@ router.post("/v1/user", [
       res.statusMessage = "User Created"
       delete result.password;
       responseObj.result = result;
-      let createUserEndTime = new Date();
-      let createUserTime = createUserStartTime.getMilliseconds() - createUserEndTime.getMilliseconds()
       res.send(responseObj);
     }
   })
