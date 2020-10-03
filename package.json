@@ -4,7 +4,7 @@
   "description": "Repo for CSYE6225-Fall2020",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node test",
+    "test": "jasmine-node test/test.js",
     "dev": "nodemon server",
     "start": "node server",
     "build": "nodemon server --watch server"

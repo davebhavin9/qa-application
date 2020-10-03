@@ -1,55 +1,34 @@
-var request = require("request");
+//REference https://gist.github.com/vladimirze/960d8c721455333a154fa1f73b412d51 , https://github.com/mhevery/jasmine-node
 
-var base_url = "http://localhost:3000/users"
+const request = require('request');
 
-let User = {
-  _id:1,
-  name:'',
-  email:'',
-  password:''
-};
-//Object.defineProperty(User, "_id", {});
-//Object.defineProperty(User, "name", {});
-//Object.defineProperty(User, "email", {});
-//Object.defineProperty(User, "password", {});
+const server = require('../server/index');
 
-describe("Users List API Exists", function() {
-  describe("GET /users", function() {
-    it("returns status code 200", function(done) {
-      request.get(base_url, function(error, response, body) {
-        expect(response.statusCode).toBe(200);
+const endpoint = 'http://localhost:8080/check';
+
+
+var name = require("bhavin");
+
+var request = require('request');
+
+it('should return 200 response code', function (done) {
+    request.get(endpoint, function (error, response) {
+        expect(response.statusCode).toEqual(200);
         done();
-      });
     });
-
-    /*it("should be valid array", function(done) {
-      request.get(base_url, function(error, response, body) {
-        expect(body instanceof Array).toBeTruthy();
-        done();
-      });
-    });*/
-
-    it("API Response should be valid array of json objects 1", function(done) {
-      request.get(base_url, function(error, response, body) {
-        // console.log(typeof body);
-        //  body = 'Hello World';
-        expect(() => {
-          JSON.parse(body);
-        }).not.toThrow();
-
-        done();
-      });
-    });
-
-    it("API Response should be valid array of user objects 2", function(done) {
-      request.get(base_url, function(error, response, body) {
-        let users = JSON.parse(body);
-        const userRows = users.map((userRow) => {
-          expect(JSON.stringify(Object.keys(User).sort()) === JSON.stringify(Object.keys(userRow).sort())).toBeTruthy();
+});
+describe('check', function () {
+    it('should return 200 response code', function (done) {
+        request.get(endpoint, function (error, response) {
+            expect(response.statusCode).toEqual(200);
+            done();
         });
-        done();
-      });
     });
 
-  });
+    it('should fail on POST', function (done) {
+        request.post(endpoint, {json: true, body: {}}, function (error, response) {
+            expect(response.statusCode).toEqual(404);
+            done();
+        });
+    });
 });
