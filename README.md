@@ -13,8 +13,11 @@
 a) $ https://github.com/davebhavin9/webapp.git <br />
 b) $ cd webapp <br />
 c) $ npm install <br />
+
 ```
 # Running the server
+1) connect to database
 ```
+
 $ npm run dev
 ```
