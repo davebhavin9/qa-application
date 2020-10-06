@@ -5,13 +5,15 @@ const path = require("path");
 const sequelize = require(path.resolve(".") + "/server/models/index.js").sequelize;
 
 
-var Question = sequelize.define('Question', {
-    question_id: {
+var Answer = sequelize.define('Answer', {
+    answer_id: {
         allowNull: false,
-        primaryKey: true,
-       // unique: true,
+        unique: true,
         type: Sequelize.UUID,
-        defaultValue: uuid.v4()
+    },
+    question_id: {
+        type: Sequelize.UUID,
+       allowNull: false,
     },
     user_id: {
         allowNull: false,
@@ -20,17 +22,17 @@ var Question = sequelize.define('Question', {
         type: Sequelize.UUID,
         defaultValue: uuid.v4()
     },
-    question_text: {
+    answer_text: {
         type: Sequelize.STRING,
        allowNull: false,
        unique: true,
     }
 },
 {
-    updated_timestamp: 'Question_updated',
-    created_timestamp: 'Question_created'
+    updated_timestamp: 'Answer_updated',
+    created_timestamp: 'Answer_created'
 });
 sequelize.sync();
 module.exports = {
-    Question
+    Answer
 }

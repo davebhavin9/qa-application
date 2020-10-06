@@ -5,17 +5,14 @@ const path = require("path");
 const sequelize = require(path.resolve(".") + "/server/models/index.js").sequelize;
 
 
-var Category = sequelize.define('Category', {
+var Category = sequelize.define('RANDOM', {
     category_id: {
         allowNull: false,
-        primaryKey: true,
-        unique: true,
+        primaryKey:true,
         type: Sequelize.UUID,
-        defaultValue: uuid.v4()
     },
     category: {
-        type: Sequelize.STRING,
-       allowNull: false,
+        type: Sequelize.STRING
     }
 });
 sequelize.sync();
