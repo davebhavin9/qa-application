@@ -1,7 +1,9 @@
 
-const User = require("../models/user").User;
 const bcrypt = require('bcryptjs');
-
+const db=require("../models")
+const User = db.users;
+const Category = db.categories;
+const QModel = db.questions;
 
 async function createUsers(userData, callback) {
 const [user, created] = await User.findOrCreate({
@@ -31,7 +33,6 @@ async function getUser(dataObj, callback) {
             await bcrypt.compare(password, pass.password).then(async function (res) {
                 if (res == true) {
                     let result = await User.findOne({ where: { username: userID, password: pass.password }, attributes: ['id','first_name', 'last_name', 'username', 'Account_created', 'Account_updated'] })
-                    
                     return callback(null, result);
                 }
                 else {
@@ -103,9 +104,21 @@ function getUserID(data, callback) {
             return callback("user account not found", null)
         });
 }
+async function getUserID2(data, callback) {
+    //console.log("data"+data.question_id)
+    const project = await User.findOne({ where: { id: data.id } });
+if (project === null) {
+  console.log('Not found!');
+} else {
+    let result = await User.findOne({ where: { id: data.id } , attributes: ['id','first_name', 'last_name', 'username', 'Account_created', 'Account_updated'] })
+    return callback(null, result);
+}
+   
+}
 module.exports = {
     createUsers: createUsers,
     getUser,
     editUser,
-    getUserID
+    getUserID,
+    getUserID2
 }
