@@ -1,7 +1,9 @@
 
-const User = require("../models/user").User;
 const bcrypt = require('bcryptjs');
-
+const db=require("../models")
+const User = db.users;
+const Category = db.categories;
+const QModel = db.questions;
 
 async function createUsers(userData, callback) {
 const [user, created] = await User.findOrCreate({
@@ -103,6 +105,7 @@ function getUserID(data, callback) {
         });
 }
 async function getUserID2(data, callback) {
+    //console.log("data"+data.question_id)
     const project = await User.findOne({ where: { id: data.id } });
 if (project === null) {
   console.log('Not found!');

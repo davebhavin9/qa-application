@@ -1,21 +1,17 @@
-const Sequelize = require('sequelize');
-const uuid = require("uuid");
-const path = require("path");
+module.exports = (sequelize, Sequelize) => {
+    const Category = sequelize.define("category",{
+        category_id: {
+            allowNull: false,
+            primaryKey:true,
+            type: Sequelize.UUID,
+        },
+        category: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        }
+    },{
+        timestamps: false
+    });
 
-const sequelize = require(path.resolve(".") + "/server/models/index.js").sequelize;
-
-
-var Category = sequelize.define('RANDOM', {
-    category_id: {
-        allowNull: false,
-        primaryKey:true,
-        type: Sequelize.UUID,
-    },
-    category: {
-        type: Sequelize.STRING
-    }
-});
-sequelize.sync();
-module.exports = {
-    Category
+    return Category;
 }
