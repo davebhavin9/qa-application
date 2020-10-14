@@ -12,6 +12,6 @@ module.exports = (sequelize, Sequelize) => {
     },{
         timestamps: false
     });
-
+    sequelize.sync();
     return Category;
 }

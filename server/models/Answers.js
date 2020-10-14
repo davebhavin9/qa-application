@@ -2,8 +2,6 @@
 const uuid = require("uuid");
 
 
-
-
 module.exports = (sequelize, Sequelize) => {
     const Answer = sequelize.define("answer",{
         answer_id : {
@@ -19,8 +17,6 @@ module.exports = (sequelize, Sequelize) => {
         createdAt: "Answer_updated",
         updatedAt: "Answer_created"
     });
-
-
-
+    sequelize.sync();
     return Answer
 }
