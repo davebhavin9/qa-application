@@ -4,20 +4,23 @@ const db=require("../models")
 const User = db.users;
 const Category = db.categories;
 const QModel = db.questions;
+const uuid = require('uuid');
 
 async function createUsers(userData, callback) {
-const [user, created] = await User.findOrCreate({
-    where: { username: userData.username },
+    console.log(userData.username)
+var [user, created] = await User.findOrCreate({
+    where: {  username: userData.username },
     defaults: {
+        username: userData.username,
         first_name: userData.first_name,
         last_name: userData.last_name,
-        password:userData.password
+        password:userData.password,
+        id:uuid.v4()
       }
   });
   if (created) {
     return callback(null, user.get({ plain: true }));
   } else {
-           
     return callback("user already exists", null);
 }
 }

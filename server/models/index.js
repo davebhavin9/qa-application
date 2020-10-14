@@ -51,5 +51,5 @@ db.questions.hasMany(db.answers, {
     }
 })
 
-
+sequelize.sync();
 module.exports = db;

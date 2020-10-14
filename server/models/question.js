@@ -20,7 +20,7 @@ const Question = sequelize.define("Question",{
     updatedAt: "Question_updated"
 });
 
-
+sequelize.sync();
 return Question
 
 }
