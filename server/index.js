@@ -1,12 +1,15 @@
 'use strict';
 const express = require("express");
-const db = require('./models/index');
+const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
 const cors = require("cors");
-const path = require("path");
-//const index = require(path.resolve(".") + "/server/models/index.js");
+
 const router = require(path.resolve(".") + "/server/controllers/user-controller.js");
+const Qrouter = require(path.resolve(".") + "/server/controllers/question-controller.js");
+
+
+
 const port = 8080;
 
 require('dotenv').config();
@@ -14,10 +17,11 @@ require('dotenv').config();
 
 app.use(bodyParser.json());
 app.use(cors());
-//Routes
+
+
+
 app.use( router);
-
-
+require("./router/qrouter")(app);
 
 
 app.listen(port, function () {
