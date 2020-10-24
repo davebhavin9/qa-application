@@ -13,6 +13,21 @@ const { Console } = require("console");
 const CService = require(path.resolve(".") + "/server/services/CServices.js");
 
 
+
+const File = db.file;
+const aws = require('aws-sdk');
+const s3 = new aws.S3(
+    {
+        accessKeyId: process.env.access,
+        secretAccessKey: process.env.secret,
+        Bucket: "webapp.dave.bhavin"
+      }
+);
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+require('dotenv').config();
+
+
 exports.getUserById = async (req, res) =>  {
     let responseObj = {};
     console.log(req.params) ;
@@ -112,6 +127,11 @@ exports.create = async (req, res) => {
                 {
                     as: 'answers',
                     model: Answer
+                },
+                {
+                    as: 'attachments',
+                    model: File,
+                    attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
                 }]
         })
 
@@ -166,6 +186,20 @@ exports.deleteQuestion = async (req,res) => {
     let answers = await question.getAnswers();
     console.log(answers.length);
     if(answers.length === 0){
+        let files = await question.getAttachments();
+
+        for(let i=0;i<files.length;i++){
+            await File.destroy({where: {file_id: files[i].file_id}})
+
+            let params = {
+                Bucket: "webapp.dave.bhavin",
+                Key: files[i].s3_object_name
+            }
+            s3.deleteObject(params, function(err, data) {
+                if (err) console.log(err, err.stack);
+                else    return; 
+            });
+        }
         try{var result = await QModel.destroy({ where: {question_id: question.question_id}})}
        catch(e){ return res.status(500).send({Error: ' error'})}
         return res.status(204).send();
@@ -262,7 +296,17 @@ exports.getAllQuestions = async (req,res) => {
             },
             {
                 as: 'answers',
-                model: Answer
+                model: Answer,
+                include : {
+                    as: 'attachments',
+                    model: File,
+                    attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
+                }
+            },
+            {
+                as: 'attachments',
+                model: File,
+                attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
             }
         ]
     })
@@ -278,11 +322,165 @@ exports.getQuestion = async (req,res) => {
             },
             {
                 as: 'answers',
-                model: Answer
+                model: Answer,
+                include : {
+                    as: 'attachments',
+                    model: File,
+                    attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
+                }
+            },
+            {
+                as: 'attachments',
+                model: File,
+                attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
             }]
     })}
 
    catch(e){ return res.status(404).send({Error: "Question does not exist"})}
 
     res.status(200).send(result);
+}
+
+exports.attachFile = async (req, res) =>{
+    var responseObj =  {}
+    let decodedData = {};
+    if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
+    {
+        return res.status(400).json("PLease recheck the inputs")
+    }
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+    const bHeader = req.headers.authorization;
+    if (typeof bHeader != "undefined") {
+        const bearer = bHeader.split(' ');
+        const bToken = bearer[1];
+        decodedData.data = base64.decode(bToken);
+    }
+    else {
+        res.statusCode = 401;
+        responseObj.result = "unauthorised token";
+        return res.send(responseObj);
+    }
+
+   var result= decodedData.data.split(':');
+    console.log(result[0]);
+
+    let user = await User.findOne({where: {username:result[0]}});
+
+    try{var question = await QModel.findByPk(req.params.question_id)}
+    catch(e){return res.status(404).send({Error: "Question does not exist"})}
+
+   
+    if(user.id !== question.user_id) return res.status(401).send({Error: "Unauthorized User"})
+
+
+    const fileID = uuid.v4();
+    console.log(uuid.v4())
+    const upload = multer({
+        storage: multerS3({
+            s3: s3,
+            bucket: "webapp.dave.bhavin",
+            key: function (req, file, cb) {
+                //question_id+file_id+image_name
+                cb(null, req.params.question_id + "/" + fileID + "/" + path.basename( file.originalname, path.extname( file.originalname ) ) + path.extname( file.originalname ) )
+            }}),
+        fileFilter: function( req, file, cb ){
+            checkFileType( file, cb );
+        }
+    })
+
+    const singleUpload = upload.single('image');
+    await singleUpload(req, res, async (err) => {
+        if(err) return res.status(400).send(err);
+        if(!req.file) return res.status(400).send({Error: 'No File Uploaded'})
+
+        const fileToAttach = {
+            file_name: req.file.originalname,
+            file_id: fileID,
+            s3_object_name: req.file.key
+        }
+        let params = {
+            Bucket: "webapp.dave.bhavin",
+            Key: fileToAttach.s3_object_name
+        }
+        const metadata = await s3.headObject(params).promise();
+
+        fileToAttach.LastModified = metadata.LastModified.toLocaleString()
+        fileToAttach.ContentLength = metadata.ContentLength.valueOf()
+        fileToAttach.ETag = metadata.ETag.valueOf()
+
+        const file = await File.create(fileToAttach);
+        await question.addAttachment(file);
+
+        return res.status(201).send(file);
+
+    })
+
+}
+
+function checkFileType( file, cb ){
+    //check file
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test( path.extname( file.originalname ).toLowerCase());
+    const mimetype = filetypes.test( file.mimetype );
+    if( mimetype && extname ){
+        return cb( null, true );
+    } else {
+        cb( 'Error' );
+    }
+}
+exports.deleteFile = async (req, res) => {
+    var responseObj =  {}
+    let decodedData = {};
+    if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
+    {
+        return res.status(400).json("PLease recheck the inputs")
+    }
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+    const bHeader = req.headers.authorization;
+    if (typeof bHeader != "undefined") {
+        const bearer = bHeader.split(' ');
+        const bToken = bearer[1];
+        decodedData.data = base64.decode(bToken);
+    }
+    else {
+        res.statusCode = 401;
+        responseObj.result = "unauthorised token";
+        return res.send(responseObj);
+    }
+
+   var result= decodedData.data.split(':');
+    console.log(result[0]);
+
+    let user = await User.findOne({where: {username: result[0]}});
+
+    try{var question = await QModel.findByPk(req.params.question_id)}
+    catch(e){return res.status(404).send({Error: "Question does not exist"})}
+
+
+    if(user.id !== question.user_id) return res.status(401).send({Error: "User unauthorized"})
+
+    let file = await question.getAttachments({ where: {file_id: req.params.file_id}})
+    if(file.length === 0) return res.status(404).send({Error: "File not found for given question"})
+
+    file = file[0];
+
+    await question.removeAttachment(file);
+
+    await File.destroy({where: {file_id: req.params.file_id}})
+
+    let params = {
+        Bucket: "webapp.dave.bhavin",
+        Key: file.s3_object_name
+    }
+    s3.deleteObject(params, function(err, data) {
+        if (err) console.log(err, err.stack);
+        else    return res.status(204).send(); 
+    });
+
 }
