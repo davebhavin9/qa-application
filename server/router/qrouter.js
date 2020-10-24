@@ -15,4 +15,11 @@ module.exports = app => {
       app.use('/v1', router.get("/question/:question_id/answer/:answer_id", answers.getAnswer));
       app.use('/v1', router.put("/question/:question_id/answer/:answer_id", answers.updateAnswer));
       app.use('/v1', router.delete("/question/:question_id/answer/:answer_id", answers.deleteAnswer));
+
+      app.use('/v1', router.post("/question/:question_id/file", questions.attachFile));
+      app.use('/v1', router.delete("/question/:question_id/file/:file_id", questions.deleteFile));
+
+      app.use('/v1', router.post("/question/:question_id/answer/:answer_id/file", answers.attachFile));
+      app.use('/v1', router.delete("/question/:question_id/answer/:answer_id/file/:file_id", answers.deleteFile));
+
 };
