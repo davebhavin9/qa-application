@@ -18,11 +18,12 @@ c) $ npm install <br />
 # Running the server.
 1) connect to database
 ```
-$ npm run dev
+$ npm run build
 ```
 
 # Routes to use the app
-Reference- https://app.swaggerhub.com/apis-docs/csye6225/fall2020-csye6225/assignment-03#/public/get_v1_user__id_
+Reference- https://app.swaggerhub.com/apis-docs/csye6225/fall2020-csye6225/assignment-05#/public/get_v1_user__id_
+
 http://localhost:{PORT_ID}/ +
 ```
 1) GET /v1/user/self
@@ -38,4 +39,8 @@ http://localhost:{PORT_ID}/ +
 11) GET /v1/question/{question_id}/answer/{answer_id}
 12) GET /v1/questions
 13) GET /v1/question/{question_id}
+14) POST /v1/question/{question_id}/file
+15) DELETE /v1​/question​/{question_id}​/file​/{file_id}
+16) DELETE /v1​/question​/{question_id}​/answer​/{answer_id}​/file​/{file_id}
+17) POST ​/v1​/question​/{question_id}​/answer​/{answer_id}​/file
 ```
