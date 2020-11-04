@@ -7,8 +7,14 @@ on:
   push:
     branches: [ master ]
 
+env:
+  artifact_name: webapp-${{github.run_number}}.zip
+  s3_bucket_name: codedeploy-davebhavin-me
+  aws_region: ${{ secrets.AWS_AMI_REGION }}
+  cd_app_name: ${{ secrets.cd_app_name }}
+  cd_app_deploy_gname: ${{ secrets.cd_app_deploy_gname }}
 jobs:
-  pr-check:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -18,9 +24,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run start --if-present
+    - run:
+        zip -r $artifact_name
+        ls -la
+        mkdir cd_artifact
+        mv $artifact_name cd_artifact/
