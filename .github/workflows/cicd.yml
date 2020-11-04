@@ -46,5 +46,5 @@ jobs:
         touch .env
         zip -r webapp .
         ls -a
-        aws s3 cp webapp.zip s3://${bucket_name}
+        aws s3 cp webapp.zip s3://${s3_bucket_name}
         echo 'upload to s3 done'
