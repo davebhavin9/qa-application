@@ -37,12 +37,10 @@ jobs:
         mkdir cd_artifact
         cd cd_artifact
         cp ../*.json .
-        cp ../*.js .
         cp ../*.md .
-        cp -r ../src .
+        cp -r ../server .
         cp -r ../test .
         cp -r ../.github/workflows .
-        cp -r ../.git .
         cp -r ../script .
         cp ../*.yml .
         touch .env
