@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run:
-        zip -r $artifact_name
+        zip -r webapp
         ls -la
         mkdir cd_artifact
-        mv $artifact_name cd_artifact/
+        mv webapp cd_artifact/
