@@ -51,7 +51,7 @@ jobs:
 
     - name: deploy
       run: |
-            output=$(aws deploy create-deployment \
+          output=$(aws deploy create-deployment \
           --application-name webapp \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --deployment-group-name webapp-group \
