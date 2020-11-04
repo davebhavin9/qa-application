@@ -15,7 +15,7 @@ b) $ cd webapp <br />
 c) $ npm install <br />
 
 ```
-# Running the server.
+# Running the server
 1) connect to database
 ```
 $ npm run build
