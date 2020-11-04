@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/ubuntu
-npm start index.js
+npm start ./server/index.js
