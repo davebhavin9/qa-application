@@ -43,7 +43,6 @@ jobs:
         cp -r ../.github/workflows .
         cp -r ../script .
         cp ../*.yml .
-        touch .env
         zip -r webapp .
         ls -a
         aws s3 cp webapp.zip s3://${s3_bucket_name}
