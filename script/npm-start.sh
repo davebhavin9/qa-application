@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/ubuntu
-pm2 start ./server/index.js
+pm2 start index.js
