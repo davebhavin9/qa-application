@@ -8,7 +8,7 @@
  b) Linux- [sudo] npm install npm -g
  
  
-# Clone this repo
+# Clone this repo.
 ```
 a) $ https://github.com/davebhavin9/webapp.git <br />
 b) $ cd webapp <br />
