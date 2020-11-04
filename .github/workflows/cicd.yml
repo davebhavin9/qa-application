@@ -10,9 +10,9 @@ on:
 env:
   artifact_name: webapp-${{github.run_number}}.zip
   s3_bucket_name: codedeploy-davebhavin-me
-  aws_region: ${{ secrets.AWS_AMI_REGION }}
-  cd_app_name: ${{ secrets.cd_app_name }}
-  cd_app_deploy_gname: ${{ secrets.cd_app_deploy_gname }}
+  AWS_AMI_REGION: ${{ secrets.AWS_AMI_REGION }}
+  CD_APP_NAME: ${{ secrets.CD_APP_NAME }}
+  D_APP_DEPLOY_GNAME: ${{ secrets.D_APP_DEPLOY_GNAME }}
 jobs:
   build:
 
