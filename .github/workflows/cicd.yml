@@ -24,8 +24,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run:
-        zip -r webapp
+    - name: Build artifacts
+    - run: |
+        zip -r webapp .
         ls -la
         mkdir cd_artifact
         mv webapp cd_artifact/
