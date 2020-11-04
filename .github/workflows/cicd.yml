@@ -51,5 +51,4 @@ jobs:
 
     - name: deploy
       run: |
-        aws configure set region ${AWS_AMI_REGION}
             aws deploy create-deployment --application-name webpapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name webapp-group --s3-location bucket=${s3_bucket_name},bundleType=zip,key=webapp.zip
