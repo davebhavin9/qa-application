@@ -51,4 +51,14 @@ jobs:
 
     - name: deploy
       run: |
-            aws deploy create-deployment --application-name webpapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name webapp-group --s3-location bucket=codedeploy-davebhavin-me,bundleType=zip,key=webapp.zip
+            output=$(aws deploy create-deployment \
+          --application-name webapp \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name webapp-group \
+          --description "CSYE6255 - CodeDeploy" \
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},key=webapp.zip,bundleType=zip \
+          --region us-east-1 \
+          --output json)
+          echo $output
+          dId=$(echo $output | jq -r '.deploymentId')
+          aws deploy wait deployment-successful --deployment-id $dId
