@@ -49,22 +49,6 @@ jobs:
         aws s3 cp webapp.zip s3://${s3_bucket_name}
         echo 'upload to s3 done'
 
-    - name: copy to s3
-      run: |
-        mkdir cd_artifact
-        cd cd_artifact
-        cp ../*.json .
-        cp ../*.md .
-        cp -r ../server .
-        cp -r ../test .
-        cp -r ../.github/workflows .
-        cp -r ../script .
-        cp ../*.yml .
-        touch .env
-        zip -r webapp .
-        ls -a
-        aws s3 cp webapp.zip s3://${s3_bucket_name}
-        echo 'upload to s3 done'
     - name: deploy
       run: |
         aws configure set region ${AWS_REGION}
