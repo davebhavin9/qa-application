@@ -4,11 +4,13 @@
 name: Node.js CI
 
 on:
+  pull_request:
+    branches: [ master ]
   push:
     branches: [ master ]
 
 jobs:
-  pr_check:
+  pr-check:
 
     runs-on: ubuntu-latest
 
