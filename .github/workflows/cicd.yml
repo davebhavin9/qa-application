@@ -24,8 +24,29 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run: |
-        zip -r webapp .
-        ls -la
+
+    - name: Configure AWS credentials from Test account
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: copy to s3
+      run: |
         mkdir cd_artifact
-        mv webapp cd_artifact/
+        cd cd_artifact
+        cp ../*.json .
+        cp ../*.js .
+        cp ../*.md .
+        cp -r ../src .
+        cp -r ../test .
+        cp -r ../.github/workflows .
+        cp -r ../.git .
+        cp -r ../script .
+        cp ../*.yml .
+        touch .env
+        zip -r webapp .
+        ls -a
+        aws s3 cp webapp.zip s3://${bucket_name}
+        echo 'upload to s3 done'
