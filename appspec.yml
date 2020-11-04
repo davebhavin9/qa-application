@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu
+hooks:
+  BeforeInstall:
+   - location: script/npm-before_install.sh
+     timeout: 300
+     runas: ubuntu
+  AfterInstall:
+   - location: script/npm-install.sh
+     timeout: 300
+     runas: ubuntu
+  ApplicationStart:
+   - location: script/npm-start.sh
+     runas: ubuntu
+     timeout: 300
