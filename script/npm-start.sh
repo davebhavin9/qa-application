@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/ubuntu/
-pm2 server &
+pm2 start server &
