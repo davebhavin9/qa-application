@@ -6,8 +6,7 @@
   "scripts": {
     "test": "jest --detectOpenHandles --forceExit",
     "dev": "nodemon server",
-    "build": "nodemon server --watch server",
-    "start":"node server"
+    "build": "nodemon server --watch server"
   },
   "jest": {
     "testEnvironment": "node"
