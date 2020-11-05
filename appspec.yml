@@ -8,10 +8,6 @@ hooks:
    - location: script/npm-before_install.sh
      timeout: 300
      runas: ubuntu
-  AfterInstall:
-   - location: script/npm-install.sh
-     timeout: 300
-     runas: ubuntu
   ApplicationStart:
    - location: script/npm-start.sh
      runas: ubuntu
