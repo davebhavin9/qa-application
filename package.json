@@ -4,7 +4,7 @@
   "description": "Repo for CSYE6225-Fall2020",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles --forceExit",
+    "test": "mocha --exit",
     "dev": "nodemon server",
     "build": "nodemon server --watch server"
   },
@@ -37,7 +37,7 @@
     "jasmine-node": "^3.0.0",
     "jest": "23.1.0",
     "joi": "^17.2.1",
-    "mocha": "^8.1.3",
+    "mocha": "6.1.2",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "mysql2": "^2.2.5",
