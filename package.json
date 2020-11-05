@@ -4,9 +4,10 @@
   "description": "Repo for CSYE6225-Fall2020",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --detectOpenHandles --forceExit",
     "dev": "nodemon server",
-    "build": "nodemon server --watch server"
+    "build": "nodemon server --watch server",
+    "start":"node server"
   },
   "jest": {
     "testEnvironment": "node"
