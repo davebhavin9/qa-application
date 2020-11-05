@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /home/ubuntu
+cd /home/ubuntu/server
 pwd
-npm run build
+pm2 start index.js
