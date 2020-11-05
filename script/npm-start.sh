@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /home/ubuntu/
 pwd
-npm run build
+npm run build &
