@@ -2,4 +2,4 @@
 cd /home/ubuntu/
 npm install
 sudo nohup node server & 
-exit 1
+exit 0
