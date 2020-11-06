@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /home/ubuntu/
 npm install
-sudo nohup node app.js >> output.log 2>&1 &
+sudo nohup node server >> output.log 2>&1 &
