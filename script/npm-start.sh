@@ -1,4 +1,5 @@
 #!/bin/bash
 cd /home/ubuntu/
 npm install
-sudo nohup start server & 
+sudo nohup node server & 
+exit 0
