@@ -15,7 +15,7 @@ var passwordValidator = require('password-validator');
 const app = require("..");
 var fileName= "user-controller.js";
 const logger = require('../logger/logger')
-const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
+const SDC = require('node-statsd'), sdc = new SDC();
 
 
 

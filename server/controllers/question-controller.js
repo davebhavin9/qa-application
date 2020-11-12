@@ -14,7 +14,7 @@ const CService = require(path.resolve(".") + "/server/services/CServices.js");
 
 var fileName= "question-controller.js";
 const logger = require('../logger/logger')
-const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
+const SDC = require('node-statsd'), sdc = new SDC();
 
 const File = db.file;
 const aws = require('aws-sdk');
