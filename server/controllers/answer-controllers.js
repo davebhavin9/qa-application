@@ -33,7 +33,6 @@ require('dotenv').config();
 
 exports.create = async (req, res) => {
     sdc.increment('POST answer');
-    let StartTime12 = new Date();
     var responseObj =  {}
     let decodedData = {};
     if(req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
@@ -88,11 +87,10 @@ exports.create = async (req, res) => {
             attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
         }
     });
-    let endTime12 = new Date();
-    let totalTime12= StartTime12.getMilliseconds()-endTime12.getMilliseconds();
-    logger.info("POST answer  ", totalTime12);
+    let endTime12 = new Date().getMilliseconds();
+    logger.info("POST answer  ", endTime12);
     logger.info("POST answer " + fileName) 
-    sdc.timing('POST answer', totalTime12)
+    sdc.timing('POST answer', endTime12)
 
 
     return res.status(201).send(answer)
@@ -100,7 +98,6 @@ exports.create = async (req, res) => {
 
 exports.deleteAnswer = async (req, res) => {
     sdc.increment('DELETE answer');
-    let StartTime13 = new Date();
     var responseObj =  {}
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
@@ -161,11 +158,10 @@ exports.deleteAnswer = async (req, res) => {
 
     await Answer.destroy({where: { answer_id: req.params.answer_id}})
 
-    let endTime13 = new Date();
-    let totalTime13= StartTime13.getMilliseconds()-endTime13.getMilliseconds();
-    logger.info("DELETE answer  ", totalTime13);
+    let endTime13 = new Date().getMilliseconds();
+    logger.info("DELETE answer  ", endTime13);
     logger.info("DELETE answer " + fileName); 
-    sdc.timing('DELETE answer', totalTime13);
+    sdc.timing('DELETE answer', endTime13);
 
     return res.status(204).send()
 
@@ -173,7 +169,6 @@ exports.deleteAnswer = async (req, res) => {
 
 exports.updateAnswer = async (req,res) => {
     sdc.increment('PUT answer');
-    let StartTime14 = new Date();
     var responseObj =  {}
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
@@ -222,18 +217,16 @@ exports.updateAnswer = async (req,res) => {
         {
             where: { answer_id: req.params.answer_id}
         })
-        let endTime14 = new Date();
-        let totalTime14= StartTime14.getMilliseconds()-endTime14.getMilliseconds();
-        logger.info("PUT answer  ", totalTime14);
+        let endTime14 = new Date().getMilliseconds();
+        logger.info("PUT answer  ", endTime14);
         logger.info("PUT answer " + fileName) 
-        sdc.timing('PUT answer', totalTime14)
+        sdc.timing('PUT answer', endTime14)
     return res.status(204).send();
 }
 
 
 exports.getAnswer = async (req,res) => {
     sdc.increment('GET answer');
-    let StartTime15 = new Date();
     try{var question = await QModel.findByPk(req.params.question_id);}
     catch(e){logger.error("question does not exist"+ fileName); return res.status(404).send({Error: "Question does not exits"})}
 
@@ -247,16 +240,14 @@ exports.getAnswer = async (req,res) => {
             attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
         }
     })
-    let endTime15 = new Date();
-    let totalTime15= StartTime15.getMilliseconds()-endTime15.getMilliseconds();
-    logger.info("GET answer  ", totalTime15);
+    let endTime15 = new Date().getMilliseconds();
+    logger.info("GET answer  ", endTime15);
     logger.info("GET answer " + fileName) 
-    sdc.timing('GET answer', totalTime15)
+    sdc.timing('GET answer', endTime15)
     return res.status(200).send(answer)
 
 }
 exports.attachFile = async (req, res) =>{
-    let StartTime16 = new Date();
     sdc.increment('ATTACH file to the answer');
     var responseObj =  {}
     let decodedData = {};
@@ -334,11 +325,10 @@ exports.attachFile = async (req, res) =>{
 
         const file = await File.create(fileToAttach);
         await answer.addAttachment(file);
-        let endTime16 = new Date();
-        let totalTime16= StartTime16.getMilliseconds()-endTime16.getMilliseconds();
-        logger.info("ATTACH FILE TO ANS  ", totalTime16);
+        let endTime16 = new Date().getMilliseconds();
+        logger.info("ATTACH FILE TO ANS  ", endTime16);
         logger.info("ATTACH FILE TO ANS " + fileName) 
-        sdc.timing('ATTACH FILE TO ANS ', totalTime16)
+        sdc.timing('ATTACH FILE TO ANS ', endTime16)
         return res.status(201).send(file);
 
     })
@@ -358,7 +348,6 @@ function checkFileType( file, cb ){
 }
 
 exports.deleteFile = async (req, res) => {
-    let StartTime17 = new Date();
     sdc.increment('DELETE file attache to the answer');
     var responseObj =  {}
     let decodedData = {};
@@ -412,11 +401,10 @@ exports.deleteFile = async (req, res) => {
     }
     s3.deleteObject(params, function(err, data) {
         if (err) console.log(err, err.stack);  
-        else    {let endTime17 = new Date();
-            let totalTime17= StartTime17.getMilliseconds()-endTime17.getMilliseconds();
-            logger.info("DELETE FILE ATTACHE TD THE ANS ", totalTime17);
+        else    {let endTime17 = new Date().getMilliseconds();
+            logger.info("DELETE FILE ATTACHE TD THE ANS ", endTime17);
             logger.info("DELETE FILE ATTACHE TD THE ANS " + fileName) 
-            sdc.timing('DELETE FILE ATTACHE TD THE ANS ', totalTime17);
+            sdc.timing('DELETE FILE ATTACHE TD THE ANS ', endTime17);
             
             return res.status(204).send(); }
     });
