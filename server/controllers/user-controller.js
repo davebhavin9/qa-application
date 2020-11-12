@@ -62,7 +62,7 @@ router.get("/v1/user/self", function (req, res) {
       res.send(responseObj);
     }
     else {
-      logger.console("GET req error" + fileName) 
+      logger.debug("GET req error" + fileName) 
       res.statusCode = 400
       res.statusMessage = "Failed in fetching the data";
       responseObj.error = error
@@ -101,7 +101,7 @@ router.put("/v1/user/self", function (req, res) {
   
   userService.editUser(decodedData, req.body, function (error, result) {
     if (error) {
-      logger.console("Error in edit user route ", fileName)
+      logger.debug("Error in edit user route ", fileName)
       res.statusCode = 400
       res.statusMessage = "Bad Request"
       responseObj.error = error
@@ -152,7 +152,7 @@ router.post("/v1/user", [
   }
   userService.createUser(userData, function (error, result) {
     if (error) {
-      logger.console("Error in creating user route " + fileName);
+      logger.debug("Error in creating user route " + fileName);
       res.statusCode = 400;
       responseObj.result = error
       res.send(responseObj);
