@@ -40,7 +40,7 @@ router.get("/v1/user/self", function (req, res) {
   console.log(bHeader);
   if (typeof bHeader == "undefined") {
     res.statusCode = 401;
-    logger.debug("Unautherized Tocken"+ fileName);
+    logger.error("Unautherized Tocken"+ fileName);
     responseObj.result = "Unautherized Tocken";
     res.send(responseObj);
 
@@ -64,7 +64,7 @@ router.get("/v1/user/self", function (req, res) {
       res.send(responseObj);
     }
     else {
-      logger.debug("GET req error" + fileName) 
+      logger.error("GET req error" + fileName) 
       
       res.statusCode = 400
       res.statusMessage = "Failed in fetching the data";
@@ -86,7 +86,7 @@ router.put("/v1/user/self", function (req, res) {
   if (typeof bHeader == "undefined") {
     res.statusCode = 401;
     responseObj.result = "Unautherized Tocken";
-    logger.debug("Unautherized Tocken"+ fileName);
+    logger.error("Unautherized Tocken"+ fileName);
     res.send(responseObj);
 
   }
@@ -98,7 +98,7 @@ router.put("/v1/user/self", function (req, res) {
   function checkPload(req) {
     if (!req.body.first_name || !req.body.last_name || !req.body.password || !req.body.username) {
       res.statusCode = 400;
-      logger.debug("Incomplete payload");
+      logger.error("Incomplete payload");
       return res.status(400).json('Incomplete payload')
     }
   }
@@ -106,7 +106,7 @@ router.put("/v1/user/self", function (req, res) {
   
   userService.editUser(decodedData, req.body, function (error, result) {
     if (error) {
-      logger.debug("Error in edit user route ", fileName)
+      logger.error("Error in edit user route ", fileName)
       
       res.statusCode = 400
       res.statusMessage = "Bad Request"
@@ -141,13 +141,13 @@ router.post("/v1/user", [
   let StartTime = new Date();
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    logger.debug("bad request for POST user");
+    logger.error("bad request for POST user");
     return res.status(400).json({ errors: errors.array() })
   }
   var schema = new passwordValidator();
   schema.is().min(8).has().digits().has().lowercase().has().uppercase()
   if (!schema.validate(req.body.password)) {
-    logger.debug("password not compatible");
+    logger.error("password not compatible");
     return res.status(400).json("Password should be 8 character long, must have atleast one digit, one lower case,one upper case")
   }
   var hashedPassword = bcrypt.hashSync(req.body.password,10);
@@ -161,7 +161,7 @@ router.post("/v1/user", [
   }
   userService.createUser(userData, function (error, result) {
     if (error) {
-      logger.debug("Error in creating user route " + fileName);
+      logger.error("Error in creating user route " + fileName);
       res.statusCode = 400;
       responseObj.result = error
       res.send(responseObj);
