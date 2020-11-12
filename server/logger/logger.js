@@ -20,16 +20,8 @@ var options = {
     },
 };
 
-const logFormat = winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.align(),
-    winston.format.printf(
-        info => `TIMESTAMP: ${info.timestamp}, LEVEL:  ${info.level}, MESSAGE: ${info.message}`
-    )
-);
 
 var logger = new winston.createLogger({
-    format : logFormat,
     transports: [
         new winston.transports.File(options.file),
         new winston.transports.Console(options.console)
