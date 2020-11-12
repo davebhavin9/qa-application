@@ -15,7 +15,7 @@ var passwordValidator = require('password-validator');
 const app = require("..");
 var fileName= "user-controller.js";
 const logger = require('../logger/logger')
-const SDC = require('node-statsd'), sdc = new SDC();
+const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
 
 
 
@@ -30,7 +30,7 @@ router.get("/check", function (req, res) {
 //AUTHENTICATED
 
 router.get("/v1/user/self", function (req, res) {
-  let StartTime1 = new Date();
+  var StartTime1 = new Date();
   sdc.increment('GET user');
   logger.info("Route name ,GET to " + fileName)
   const responseObj = {}
@@ -53,11 +53,11 @@ router.get("/v1/user/self", function (req, res) {
   }
   userService.getUser(decodedData, function (error, result) {
     if (!error) {
-      let endTime1 = new Date();
-      let totalTime1= StartTime1.getMilliseconds()-endTime1.getMilliseconds();
-      logger.info("Get user time ", totalTime2);
-      logger.info("GET req complete" + fileName) 
+      var endTime1 = new Date();
+      var totalTime1= StartTime1.getMilliseconds()-endTime1.getMilliseconds();
+      logger.info("Get user time ", totalTime1);
       sdc.timing('GET req complete', totalTime1)
+      logger.info("GET req complete" + fileName) 
       res.statusCode = 200;
       res.statusMessage = "OK";
       responseObj.result = result;
@@ -78,7 +78,7 @@ router.get("/v1/user/self", function (req, res) {
 //PUT
 router.put("/v1/user/self", function (req, res) {
   sdc.increment('PUT user');
-  let StartTime2 = new Date();
+  var StartTime2 = new Date();
   logger.info("Route name ,POST to " + fileName)
   let responseObj = {}
   let decodedData = {};
@@ -115,10 +115,10 @@ router.put("/v1/user/self", function (req, res) {
     }
     else {
       logger.info("Update user route complete ", fileName)
-      let endTime2 = new Date();
-      let totalTime2= StartTime2.getMilliseconds()-endTime2.getMilliseconds();
-      logger.info("Update user time ", totalTime2);
+      var endTime2 = new Date();
+      var totalTime2= StartTime2.getMilliseconds()-endTime2.getMilliseconds();
       sdc.timing('Update user time', totalTime2)
+      logger.info("Update user time ", totalTime2);
       res.statusCode = 204
       res.statusMessage = "User Updated"
       delete result.password;
@@ -169,9 +169,8 @@ router.post("/v1/user", [
     else {
       let endTime3 = new Date();
       let totalTime3= StartTime3.getMilliseconds()-endTime3.getMilliseconds();
-      logger.info("Create user time ", totalTime3);
       sdc.timing('Create_user_time', totalTime3)
-      
+      logger.info("Create user time ", totalTime3);
       res.statusCode = 201;
       res.statusMessage = "User Created"
       delete result.password;
