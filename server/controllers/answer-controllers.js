@@ -13,7 +13,7 @@ const CService = require(path.resolve(".") + "/server/services/CServices.js");
 
 var fileName= "answer-controller.js";
 const logger = require('../logger/logger')
-const SDC = require('node-statsd'), sdc = new SDC();
+const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
 
 
 const File = db.file;
