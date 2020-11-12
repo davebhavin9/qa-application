@@ -66,7 +66,7 @@ exports.getUserById = async (req, res) =>  {
         let totalTime4= StartTime4.getMilliseconds()-endTime4.getMilliseconds();
          logger.info("Get user  ", totalTime4);
          logger.info("GET req " + fileName) 
-         sdc.timing('GET user by ID', totalTime4)
+         sdc.timing('GET user by ID', endTime4)
         res.statusCode = 200
         res.statusMessage = "OK"
         responseObj.result = result;
