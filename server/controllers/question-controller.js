@@ -41,21 +41,21 @@ exports.getUserById = async (req, res) =>  {
     if (error) {
         if (error == "user unauthorized to access this data") {
             res.statusCode = 401
-            logger.debug("Unautherized in file question"+fileName);
+            logger.error("Unautherized in file question"+fileName);
             res.statusMessage = "Unauthorised"
             responseObj.error = error
           return  res.send(responseObj);
         }
         else if (error == "data not found") {
             res.statusCode = 200
-            logger.debug("Not found in question"+fileName);
+            logger.error("Not found in question"+fileName);
             res.statusMessage = "NOT FOUND"
             responseObj.error = error
          return   res.send(responseObj);
         }
         else {
             res.statusCode =400
-            logger.debug("bad request in question"+fileName);
+            logger.error("bad request in question"+fileName);
             res.statusMessage = "BAD REQUEST"
             responseObj.error = error
         return    res.send(responseObj);
@@ -88,7 +88,7 @@ exports.create = async (req, res) => {
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        logger.debug("bad request"+fileName);
+        logger.error("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -99,7 +99,7 @@ exports.create = async (req, res) => {
     }
     else {
         res.statusCode = 401;
-        logger.debug("unauthorised token"+fileName);
+        logger.error("unauthorised token"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -114,7 +114,7 @@ exports.create = async (req, res) => {
             question_text: req.body.question_text,
         }
        try{ var questionCreated = await QModel.create(question)}
-       catch(e) {logger.debug("question already posted"+fileName); return res.status(500).send({Error: "Question already posted "})}
+       catch(e) {logger.error("question already posted"+fileName); return res.status(500).send({Error: "Question already posted "})}
       
 
         console.log(question)
@@ -174,18 +174,18 @@ exports.deleteQuestion = async (req,res) => {
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
-        logger.debug("inputs wrong"+fileName);
+        logger.error("inputs wrong"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        logger.debug("bad request"+fileName);
+        logger.error("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
     if (typeof bHeader == "undefined") {
         res.statusCode = 401;
-        logger.debug("Unautherized Tocken"+fileName);
+        logger.error("Unautherized Tocken"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -199,11 +199,11 @@ exports.deleteQuestion = async (req,res) => {
     console.log("ques"+req.body.question_text)
 
     try{ var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){logger.debug("question does not exist"+fileName); return res.status(404).send({Error: "Question does not exists"})}
+    catch(e){logger.error("question does not exist"+fileName); return res.status(404).send({Error: "Question does not exists"})}
 
     try{var user = await checkUser(result[0], question.user_id)}
 
-    catch(e){logger.debug("User unauthorised"+fileName); return res.status(401).send({Error: "User unauthorized"})}
+    catch(e){logger.error("User unauthorised"+fileName); return res.status(401).send({Error: "User unauthorized"})}
 
     user = await User.findOne({where: {username: result[0]}});
     let answers = await question.getAnswers();
@@ -224,7 +224,7 @@ exports.deleteQuestion = async (req,res) => {
             });
         }
         try{var result = await QModel.destroy({ where: {question_id: question.question_id}})}
-       catch(e){ logger.debug("error 500"+fileName); return res.status(500).send({Error: ' error'})}
+       catch(e){ logger.error("error 500"+fileName); return res.status(500).send({Error: ' error'})}
        let endTime = new Date();
        let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
         logger.info("DELETE question  ", totalTime);
@@ -232,7 +232,7 @@ exports.deleteQuestion = async (req,res) => {
         sdc.timing('DELETE Question', totalTime)
         return res.status(204).send();
     }
-    logger.debug("THe question has more than 1 answer"+fileName);
+    logger.error("THe question has more than 1 answer"+fileName);
     return res.status(400).send({Error: "The question has more than 1 answers."})
 
 }
@@ -244,12 +244,12 @@ exports.updateQuestion = async (req, res) => {
     let decodedData = {};
     if(req.body.question_id || req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
-        logger.debug("Recheck inputs for question"+fileName);
+        logger.error("Recheck inputs for question"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        logger.debug("bad request for question"+fileName);
+        logger.error("bad request for question"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -260,7 +260,7 @@ exports.updateQuestion = async (req, res) => {
     }
     else {
         res.statusCode = 401;
-        logger.debug("Unautherized Tocken for question"+fileName);
+        logger.error("Unautherized Tocken for question"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -270,11 +270,11 @@ exports.updateQuestion = async (req, res) => {
     console.log("ques"+req.body.question_text)
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-  catch(e){logger.debug("question not found for question"+fileName); return res.status(404).send({Error: "Question not found"})}
+  catch(e){logger.error("question not found for question"+fileName); return res.status(404).send({Error: "Question not found"})}
 
     let user = await User.findOne({where: {username: result[0]}});
-    if(user==null || user==undefined){logger.debug("Unautherized user for question"+fileName);return res.status(401).send({Error: "User unauthorized"})}
-    if(user.id !== question.user_id){logger.debug("Unautherized user for question"+fileName); return res.status(401).send({Error: "User unauthorized"})}
+    if(user==null || user==undefined){logger.error("Unautherized user for question"+fileName);return res.status(401).send({Error: "User unauthorized"})}
+    if(user.id !== question.user_id){logger.error("Unautherized user for question"+fileName); return res.status(401).send({Error: "User unauthorized"})}
 
     const arraySchema = joi.array().items(
         joi.object({
@@ -288,7 +288,7 @@ exports.updateQuestion = async (req, res) => {
 
     const { question_text, categories } = req.body;
 
-    if(!question_text && !categories){logger.debug("No field supplied dor question"+fileName); return res.status(400).send({Error: "No field supplied to update"})}
+    if(!question_text && !categories){logger.error("No field supplied dor question"+fileName); return res.status(400).send({Error: "No field supplied to update"})}
 
     try{var validation = schema.validate(req.body);}
     catch(e){ return res.status(400).send({Error: validation.error.details[0].message});}
@@ -403,7 +403,7 @@ exports.attachFile = async (req, res) =>{
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        logger.debug("bad request"+fileName);
+        logger.error("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -414,7 +414,7 @@ exports.attachFile = async (req, res) =>{
     }
     else {
         res.statusCode = 401;
-        logger.debug("unauthorised token for question"+fileName);
+        logger.error("unauthorised token for question"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -425,10 +425,10 @@ exports.attachFile = async (req, res) =>{
     let user = await User.findOne({where: {username:result[0]}});
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){logger.debug("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
+    catch(e){logger.error("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
 
    
-    if(user.id !== question.user_id) {logger.debug("unauthorised user"+fileName);return res.status(401).send({Error: "Unauthorized User"})}
+    if(user.id !== question.user_id) {logger.error("unauthorised user"+fileName);return res.status(401).send({Error: "Unauthorized User"})}
 
 
     const fileID = uuid.v4();
@@ -497,12 +497,12 @@ exports.deleteFile = async (req, res) => {
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
-        logger.debug("wrong inputs"+fileName);
+        logger.error("wrong inputs"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        logger.debug("bad request"+fileName);
+        logger.error("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -513,7 +513,7 @@ exports.deleteFile = async (req, res) => {
     }
     else {
         res.statusCode = 401;
-        logger.debug("unauthorised token"+fileName);
+        logger.error("unauthorised token"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -524,13 +524,13 @@ exports.deleteFile = async (req, res) => {
     let user = await User.findOne({where: {username: result[0]}});
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){logger.debug("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
+    catch(e){logger.error("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
 
 
-    if(user.id !== question.user_id) {logger.debug("unauthorised user"+fileName);return res.status(401).send({Error: "User unauthorized"})}
+    if(user.id !== question.user_id) {logger.error("unauthorised user"+fileName);return res.status(401).send({Error: "User unauthorized"})}
 
     let file = await question.getAttachments({ where: {file_id: req.params.file_id}})
-    if(file.length === 0) {logger.debug("file not found for that question"+fileName);return res.status(404).send({Error: "File not found for given question"})}
+    if(file.length === 0) {logger.error("file not found for that question"+fileName);return res.status(404).send({Error: "File not found for given question"})}
 
     file = file[0];
 
