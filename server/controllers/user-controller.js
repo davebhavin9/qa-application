@@ -30,7 +30,6 @@ router.get("/check", function (req, res) {
 //AUTHENTICATED
 
 router.get("/v1/user/self", function (req, res) {
-  var StartTime1 = new Date();
   sdc.increment('GET user');
   logger.info("Route name ,GET to " + fileName)
   const responseObj = {}
@@ -53,11 +52,9 @@ router.get("/v1/user/self", function (req, res) {
   }
   userService.getUser(decodedData, function (error, result) {
     if (!error) {
-      var endTime1 = new Date();
-      var totalTime1= StartTime1.getMilliseconds()-endTime1.getMilliseconds();
-      logger.info("Get user time ", totalTime1);
-      sdc.timing('GET req complete', totalTime1)
+      let endTime1 = new Date();
       logger.info("GET req complete" + fileName) 
+      sdc.timing('GET req complete', endTime1)
       res.statusCode = 200;
       res.statusMessage = "OK";
       responseObj.result = result;
@@ -78,7 +75,6 @@ router.get("/v1/user/self", function (req, res) {
 //PUT
 router.put("/v1/user/self", function (req, res) {
   sdc.increment('PUT user');
-  var StartTime2 = new Date();
   logger.info("Route name ,POST to " + fileName)
   let responseObj = {}
   let decodedData = {};
@@ -115,10 +111,8 @@ router.put("/v1/user/self", function (req, res) {
     }
     else {
       logger.info("Update user route complete ", fileName)
-      var endTime2 = new Date();
-      var totalTime2= StartTime2.getMilliseconds()-endTime2.getMilliseconds();
-      sdc.timing('Update user time', totalTime2)
-      logger.info("Update user time ", totalTime2);
+      let endTime2 = new Date();
+      sdc.timing('Update user time', endTime2)
       res.statusCode = 204
       res.statusMessage = "User Updated"
       delete result.password;
@@ -138,7 +132,6 @@ router.post("/v1/user", [
   sdc.increment('POST user');
   logger.info("Route name ,POST to " + fileName)
   let responseObj = {};
-  let StartTime3 = new Date();
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     logger.error("bad request for POST user");
@@ -168,9 +161,7 @@ router.post("/v1/user", [
     }
     else {
       let endTime3 = new Date();
-      let totalTime3= StartTime3.getMilliseconds()-endTime3.getMilliseconds();
-      sdc.timing('Create_user_time', totalTime3)
-      logger.info("Create user time ", totalTime3);
+      sdc.timing('Create_user_time', endTime3);
       res.statusCode = 201;
       res.statusMessage = "User Created"
       delete result.password;
