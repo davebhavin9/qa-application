@@ -12,7 +12,9 @@ const base64 = require('base-64');
 const { Console } = require("console");
 const CService = require(path.resolve(".") + "/server/services/CServices.js");
 
-
+var fileName= "question-controller.js";
+const logger = require('../logger/logger')
+const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
 
 const File = db.file;
 const aws = require('aws-sdk');
@@ -29,6 +31,8 @@ require('dotenv').config();
 
 
 exports.getUserById = async (req, res) =>  {
+    sdc.increment('GET userByID');
+    let StartTime = new Date();
     let responseObj = {};
     console.log(req.params) ;
     var temp = req.params
@@ -37,24 +41,32 @@ exports.getUserById = async (req, res) =>  {
     if (error) {
         if (error == "user unauthorized to access this data") {
             res.statusCode = 401
+            logger.debug("Unautherized in file question"+fileName);
             res.statusMessage = "Unauthorised"
             responseObj.error = error
           return  res.send(responseObj);
         }
         else if (error == "data not found") {
             res.statusCode = 200
+            logger.debug("Not found in question"+fileName);
             res.statusMessage = "NOT FOUND"
             responseObj.error = error
          return   res.send(responseObj);
         }
         else {
             res.statusCode =400
+            logger.debug("bad request in question"+fileName);
             res.statusMessage = "BAD REQUEST"
             responseObj.error = error
         return    res.send(responseObj);
         }
     }
     else {
+        let endTime = new Date();
+        let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+         logger.info("Get user  ", totalTime);
+         logger.info("GET req " + fileName) 
+         sdc.timing('GET user by ID', totalTime)
         res.statusCode = 200
         res.statusMessage = "OK"
         responseObj.result = result;
@@ -65,7 +77,8 @@ exports.getUserById = async (req, res) =>  {
 }
 
 exports.create = async (req, res) => {
-   
+    sdc.increment('POST question');
+    let StartTime = new Date();
 
     var responseObj =  {}
     let decodedData = {};
@@ -75,6 +88,7 @@ exports.create = async (req, res) => {
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        logger.debug("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -85,6 +99,7 @@ exports.create = async (req, res) => {
     }
     else {
         res.statusCode = 401;
+        logger.debug("unauthorised token"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -99,7 +114,7 @@ exports.create = async (req, res) => {
             question_text: req.body.question_text,
         }
        try{ var questionCreated = await QModel.create(question)}
-       catch(e) {return res.status(500).send({Error: "Question already posted "})}
+       catch(e) {logger.debug("question already posted"+fileName); return res.status(500).send({Error: "Question already posted "})}
       
 
         console.log(question)
@@ -134,7 +149,11 @@ exports.create = async (req, res) => {
                     attributes: ['file_name','s3_object_name','file_id','created_date', 'LastModified', 'ContentLength', 'ETag']
                 }]
         })
-
+        let endTime = new Date();
+        let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+         logger.info("POST question  ", totalTime);
+         logger.info("POST question " + fileName) 
+         sdc.timing('POST Question', totalTime)
         return res.status(201).send(result1);
 }
 
@@ -144,25 +163,29 @@ async function checkUser(username, user_id){
     const user = await User.findOne({where: {username: username}});
     if(user.id === user_id)
         return true;
-
     return false;
 
 }
 
 exports.deleteQuestion = async (req,res) => {
+    sdc.increment('DELETE question');
+    let StartTime = new Date();
     var responseObj =  {}
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
+        logger.debug("inputs wrong"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        logger.debug("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
     if (typeof bHeader == "undefined") {
         res.statusCode = 401;
+        logger.debug("Unautherized Tocken"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -176,11 +199,11 @@ exports.deleteQuestion = async (req,res) => {
     console.log("ques"+req.body.question_text)
 
     try{ var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){ return res.status(404).send({Error: "Question does not exists"})}
+    catch(e){logger.debug("question does not exist"+fileName); return res.status(404).send({Error: "Question does not exists"})}
 
     try{var user = await checkUser(result[0], question.user_id)}
 
-    catch(e){ return res.status(401).send({Error: "User unauthorized"})}
+    catch(e){logger.debug("User unauthorised"+fileName); return res.status(401).send({Error: "User unauthorized"})}
 
     user = await User.findOne({where: {username: result[0]}});
     let answers = await question.getAnswers();
@@ -201,22 +224,32 @@ exports.deleteQuestion = async (req,res) => {
             });
         }
         try{var result = await QModel.destroy({ where: {question_id: question.question_id}})}
-       catch(e){ return res.status(500).send({Error: ' error'})}
+       catch(e){ logger.debug("error 500"+fileName); return res.status(500).send({Error: ' error'})}
+       let endTime = new Date();
+       let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+        logger.info("DELETE question  ", totalTime);
+        logger.info("DELETE question " + fileName) 
+        sdc.timing('DELETE Question', totalTime)
         return res.status(204).send();
     }
+    logger.debug("THe question has more than 1 answer"+fileName);
     return res.status(400).send({Error: "The question has more than 1 answers."})
 
 }
 
 exports.updateQuestion = async (req, res) => {
+    sdc.increment('UPDATE question');
+    let StartTime = new Date();
     var responseObj =  {}
     let decodedData = {};
     if(req.body.question_id || req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
+        logger.debug("Recheck inputs for question"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        logger.debug("bad request for question"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -227,6 +260,7 @@ exports.updateQuestion = async (req, res) => {
     }
     else {
         res.statusCode = 401;
+        logger.debug("Unautherized Tocken for question"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -236,11 +270,11 @@ exports.updateQuestion = async (req, res) => {
     console.log("ques"+req.body.question_text)
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-  catch(e){ return res.status(404).send({Error: "Question not found"})}
+  catch(e){logger.debug("question not found for question"+fileName); return res.status(404).send({Error: "Question not found"})}
 
     let user = await User.findOne({where: {username: result[0]}});
-    if(user==null || user==undefined)return res.status(401).send({Error: "User unauthorized"})
-    if(user.id !== question.user_id) return res.status(401).send({Error: "User unauthorized"})
+    if(user==null || user==undefined){logger.debug("Unautherized user for question"+fileName);return res.status(401).send({Error: "User unauthorized"})}
+    if(user.id !== question.user_id){logger.debug("Unautherized user for question"+fileName); return res.status(401).send({Error: "User unauthorized"})}
 
     const arraySchema = joi.array().items(
         joi.object({
@@ -254,9 +288,9 @@ exports.updateQuestion = async (req, res) => {
 
     const { question_text, categories } = req.body;
 
-    if(!question_text && !categories) return res.status(400).send({Error: "No field supplied to update"})
+    if(!question_text && !categories){logger.debug("No field supplied dor question"+fileName); return res.status(400).send({Error: "No field supplied to update"})}
 
-    try{let validation = schema.validate(req.body);}
+    try{var validation = schema.validate(req.body);}
     catch(e){ return res.status(400).send({Error: validation.error.details[0].message});}
 
     let updatedQuestion = {}
@@ -284,10 +318,17 @@ exports.updateQuestion = async (req, res) => {
         }
 
     }
+    let endTime = new Date();
+    let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+     logger.info("PUT question  ", totalTime);
+     logger.info("PUT question " + fileName) 
+     sdc.timing('PUT Question', totalTime)
     res.status(204).send({});
 
 }
 exports.getAllQuestions = async (req,res) => {
+    sdc.increment('GET ALL question');
+    let StartTime = new Date();
     const result = await QModel.findAll({
         include: [
             {
@@ -310,10 +351,16 @@ exports.getAllQuestions = async (req,res) => {
             }
         ]
     })
-
+    let endTime = new Date();
+    let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+     logger.info("GET ALL question  ", totalTime);
+     logger.info("GET ALL question " + fileName) 
+     sdc.timing('GET ALL Question', totalTime)
     res.status(200).send(result)
 }
 exports.getQuestion = async (req,res) => {
+    sdc.increment('GET question');
+    let StartTime = new Date();
    try{ var result = await QModel.findByPk(req.params.question_id,{
         include: [
             {
@@ -337,11 +384,17 @@ exports.getQuestion = async (req,res) => {
     })}
 
    catch(e){ return res.status(404).send({Error: "Question does not exist"})}
-
+   let endTime = new Date();
+   let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+    logger.info("GET question  ", totalTime);
+    logger.info("GET question " + fileName) 
+    sdc.timing('GET Question', totalTime)
     res.status(200).send(result);
 }
 
 exports.attachFile = async (req, res) =>{
+    sdc.increment('ATTACH file to question');
+    let StartTime = new Date();
     var responseObj =  {}
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
@@ -350,6 +403,7 @@ exports.attachFile = async (req, res) =>{
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        logger.debug("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -360,6 +414,7 @@ exports.attachFile = async (req, res) =>{
     }
     else {
         res.statusCode = 401;
+        logger.debug("unauthorised token for question"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -370,10 +425,10 @@ exports.attachFile = async (req, res) =>{
     let user = await User.findOne({where: {username:result[0]}});
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){return res.status(404).send({Error: "Question does not exist"})}
+    catch(e){logger.debug("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
 
    
-    if(user.id !== question.user_id) return res.status(401).send({Error: "Unauthorized User"})
+    if(user.id !== question.user_id) {logger.debug("unauthorised user"+fileName);return res.status(401).send({Error: "Unauthorized User"})}
 
 
     const fileID = uuid.v4();
@@ -413,7 +468,11 @@ exports.attachFile = async (req, res) =>{
 
         const file = await File.create(fileToAttach);
         await question.addAttachment(file);
-
+        let endTime = new Date();
+        let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+         logger.info("ATTACH FILE  ", totalTime);
+         logger.info("ATTACH FILE " + fileName) 
+         sdc.timing('ATTACH FILE', totalTime)
         return res.status(201).send(file);
 
     })
@@ -432,14 +491,18 @@ function checkFileType( file, cb ){
     }
 }
 exports.deleteFile = async (req, res) => {
+    sdc.increment('DELETE FILE of the question');
+    let StartTime = new Date();
     var responseObj =  {}
     let decodedData = {};
     if( req.body.user_id || req.body.updated_timestamp || req.body.created_timestamp)
     {
+        logger.debug("wrong inputs"+fileName);
         return res.status(400).json("PLease recheck the inputs")
     }
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        logger.debug("bad request"+fileName);
         return res.status(400).json({ errors: errors.array() })
     }
     const bHeader = req.headers.authorization;
@@ -450,6 +513,7 @@ exports.deleteFile = async (req, res) => {
     }
     else {
         res.statusCode = 401;
+        logger.debug("unauthorised token"+fileName);
         responseObj.result = "unauthorised token";
         return res.send(responseObj);
     }
@@ -460,13 +524,13 @@ exports.deleteFile = async (req, res) => {
     let user = await User.findOne({where: {username: result[0]}});
 
     try{var question = await QModel.findByPk(req.params.question_id)}
-    catch(e){return res.status(404).send({Error: "Question does not exist"})}
+    catch(e){logger.debug("question does not exist"+fileName);return res.status(404).send({Error: "Question does not exist"})}
 
 
-    if(user.id !== question.user_id) return res.status(401).send({Error: "User unauthorized"})
+    if(user.id !== question.user_id) {logger.debug("unauthorised user"+fileName);return res.status(401).send({Error: "User unauthorized"})}
 
     let file = await question.getAttachments({ where: {file_id: req.params.file_id}})
-    if(file.length === 0) return res.status(404).send({Error: "File not found for given question"})
+    if(file.length === 0) {logger.debug("file not found for that question"+fileName);return res.status(404).send({Error: "File not found for given question"})}
 
     file = file[0];
 
@@ -480,7 +544,13 @@ exports.deleteFile = async (req, res) => {
     }
     s3.deleteObject(params, function(err, data) {
         if (err) console.log(err, err.stack);
-        else    return res.status(204).send(); 
+        else    {
+            let endTime = new Date();
+            let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+             logger.info("DELETE FILE  ", totalTime);
+             logger.info("DELETE FILE " + fileName) 
+             sdc.timing('DELETE FILE ', totalTime)
+             return res.status(204).send();} 
     });
 
 }
