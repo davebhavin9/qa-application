@@ -39,6 +39,7 @@ var logger = new winston.createLogger({
 logger.stream = {
     write: function(message, encoding) {
         logger.info(message);
+        logger.error(message)
     },
 };
 
