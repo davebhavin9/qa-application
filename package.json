@@ -42,6 +42,7 @@
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "mysql2": "^2.2.5",
+    "node-statsd": "^0.1.1",
     "nodemon": "^2.0.4",
     "password-validator": "^5.1.0",
     "path": "^0.12.7",
