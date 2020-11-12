@@ -13,6 +13,12 @@ const { check, validationResult } = require('express-validator');
 var passwordValidator = require('password-validator');
 //const { Router } = require("express");
 const app = require("..");
+var fileName= "user-controller.js";
+const logger = require('../logger/logger')
+const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 8125});
+
+
+
 
 router.get("/check", function (req, res) {
   res.statusCode = 200;
@@ -24,6 +30,9 @@ router.get("/check", function (req, res) {
 //AUTHENTICATED
 
 router.get("/v1/user/self", function (req, res) {
+  let StartTime = new Date();
+  sdc.increment('GET user');
+  logger.info("Route name ,GET to " + fileName)
   const responseObj = {}
   let decodedData = {};
  
@@ -43,12 +52,17 @@ router.get("/v1/user/self", function (req, res) {
   }
   userService.getUser(decodedData, function (error, result) {
     if (!error) {
+      let endTime = new Date();
+      let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+      logger.info("Get user time ", totalTime);
+      logger.info("GET req complete" + fileName) 
       res.statusCode = 200;
       res.statusMessage = "OK";
       responseObj.result = result;
       res.send(responseObj);
     }
     else {
+      logger.console("GET req error" + fileName) 
       res.statusCode = 400
       res.statusMessage = "Failed in fetching the data";
       responseObj.error = error
@@ -60,6 +74,9 @@ router.get("/v1/user/self", function (req, res) {
 //AUTHENTICATED
 //PUT
 router.put("/v1/user/self", function (req, res) {
+  sdc.increment('PUT user');
+  let StartTime = new Date();
+  logger.info("Route name ,POST to " + fileName)
   let responseObj = {}
   let decodedData = {};
   const bHeader = req.headers.authorization;
@@ -84,12 +101,17 @@ router.put("/v1/user/self", function (req, res) {
   
   userService.editUser(decodedData, req.body, function (error, result) {
     if (error) {
+      logger.console("Error in edit user route ", fileName)
       res.statusCode = 400
       res.statusMessage = "Bad Request"
       responseObj.error = error
       res.send(responseObj);
     }
     else {
+      logger.info("Update user route complete ", fileName)
+      let endTime = new Date();
+      let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+      logger.info("Update user time ", totalTime);
       res.statusCode = 204
       res.statusMessage = "User Updated"
       delete result.password;
@@ -106,7 +128,10 @@ router.post("/v1/user", [
   check('username').exists().isEmail(),
   check('password').exists()
 ], async function (req, res) {
+  sdc.increment('POST user');
+  logger.info("Route name ,POST to " + fileName)
   let responseObj = {};
+  let StartTime = new Date();
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
@@ -127,11 +152,17 @@ router.post("/v1/user", [
   }
   userService.createUser(userData, function (error, result) {
     if (error) {
+      logger.console("Error in creating user route " + fileName);
       res.statusCode = 400;
       responseObj.result = error
       res.send(responseObj);
     }
     else {
+      let endTime = new Date();
+      let totalTime= StartTime.getMilliseconds()-endTime.getMilliseconds();
+      logger.info("Create user time ", totalTime);
+      sdc.timing('Create_user_time', totalTime)
+      
       res.statusCode = 201;
       res.statusMessage = "User Created"
       delete result.password;
