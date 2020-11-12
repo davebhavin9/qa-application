@@ -52,7 +52,7 @@ router.get("/v1/user/self", function (req, res) {
   }
   userService.getUser(decodedData, function (error, result) {
     if (!error) {
-      let endTime1 = new Date();
+      let endTime1 = new Date().getMilliseconds();
       logger.info("GET req complete" + fileName) 
       sdc.timing('GET req complete', endTime1)
       res.statusCode = 200;
@@ -111,7 +111,7 @@ router.put("/v1/user/self", function (req, res) {
     }
     else {
       logger.info("Update user route complete ", fileName)
-      let endTime2 = new Date();
+      let endTime2 = new Date().getMilliseconds();
       sdc.timing('Update user time', endTime2)
       res.statusCode = 204
       res.statusMessage = "User Updated"
@@ -160,7 +160,7 @@ router.post("/v1/user", [
       res.send(responseObj);
     }
     else {
-      let endTime3 = new Date();
+      let endTime3 = new Date().getMilliseconds();
       sdc.timing('Create_user_time', endTime3);
       res.statusCode = 201;
       res.statusMessage = "User Created"
