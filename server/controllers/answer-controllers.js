@@ -100,7 +100,7 @@ exports.create = async (req, res) => {
         AnswerID: answer.answer_id,
         AnswerText:req.body.answer_text
       };
-      logger.info("lambda" + fileName) 
+      logger.info("result[0]" + fileName) 
       var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
       publishTextPromise.then(
         function(data) {
