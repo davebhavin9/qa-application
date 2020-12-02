@@ -92,6 +92,22 @@ exports.create = async (req, res) => {
     logger.info("POST answer " + fileName) 
     sdc.timing('POST answer', endTime12)
 
+    var params = {
+        Message: result[0],
+        QuestionId:req.params.question_id,
+        AnswerID: answer.answer_id,
+        AnswerText:req.body.answer_text
+      };
+      var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+      publishTextPromise.then(
+        function(data) {
+          console.log(`User ${params.Message}'s question ${params.QuestionId} was just answered and answer id is ${params.answer_id}`);
+          console.log("Answer is your question is" + data.AnswerText);
+          res.send('Question has been answered');
+        }).catch(
+          function(err) {
+          console.error(err, err.stack);
+        });
 
     return res.status(201).send(answer)
 }
