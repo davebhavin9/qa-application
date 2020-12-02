@@ -103,7 +103,7 @@ exports.create = async (req, res) => {
       sns.publish(params, function(err, data) {
         if (err){ console.log(err, err.stack); return res.status(400).send(answer)} // an error occurred
         else    { 
-            logger.info(publishTextPromise)
+            logger.info(data.Message)
             return res.status(201).send(answer); }          // successful response
       });
       
