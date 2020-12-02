@@ -96,19 +96,65 @@ exports.create = async (req, res) => {
     logger.info("POST answer " + fileName) 
     sdc.timing('POST answer', endTime12)
     logger.info(result[0] + " 23  "+fileName) 
-    var params = {
-        Message: result[0],
-        TopicArn: process.env.TopicARN
-      };
-      logger.info(result[0] + fileName) 
-      logger.info(params.TopicArn)
-      sns.publish(params, function(err, data) {
-        if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
-        else    { 
+    
+    var result = await QModel.findByPk(req.params.question_id)
 
-            logger.info(data.Message)
-            return res.status(201).send(answer); }          // successful response
-      });
+
+    CService.getUserbyID( result.user_id, function (error, result) {
+        
+        if (error) {
+            if (error == "user unauthorized to access this data") {
+                res.statusCode = 401
+                logger.error("Unautherized in file question"+fileName);
+                res.statusMessage = "Unauthorised"
+                responseObj.error = error
+              return  res.send(responseObj);
+            }
+            else if (error == "data not found") {
+                res.statusCode = 200
+                logger.error("Not found in question"+fileName);
+                res.statusMessage = "NOT FOUND"
+                responseObj.error = error
+             return   res.send(responseObj);
+            }
+            else {
+                res.statusCode =400
+                logger.error("bad request in question"+fileName);
+                res.statusMessage = "BAD REQUEST"
+                responseObj.error = error
+            return    res.send(responseObj);
+            }
+        }
+        else {
+            let endTime4 = new Date();
+            let totalTime4= StartTime4.getMilliseconds()-endTime4.getMilliseconds();
+            logger.info("Get user  ", totalTime4);
+            logger.info("GET req " + fileName) 
+            //sdc.timing('GET user by ID', endTime4)
+            res.statusCode = 200
+            res.statusMessage = "OK"
+            responseObj.result = result;
+            var params = {
+                Message: result.user_id,
+                TopicArn: process.env.TopicARN
+              };
+              logger.info(result.user_id) 
+              logger.info(params.TopicArn)
+              sns.publish(params, function(err, data) {
+                if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
+                else    { 
+        
+                    logger.info(data)
+                    return res.status(201).send(answer); }          // successful response
+              });
+        }
+    })
+    
+
+
+
+
+    
       
 
     //return res.status(201).send(answer)
