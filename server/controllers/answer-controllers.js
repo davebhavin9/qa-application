@@ -95,17 +95,7 @@ exports.create = async (req, res) => {
     logger.info(result[0] + " 23  "+fileName) 
     var params = {
         Message: result[0],
-        TopicArn: process.env.TopicARN,
-        "MessageAttributes": {
-            "Test": {
-              "Type": "String",
-              "Value": "TestString"
-            },
-            "TestBinary": {
-              "Type": "Binary",
-              "Value": "TestBinary"
-            }
-          }
+        TopicArn: process.env.TopicARN
       };
       logger.info(result[0] + fileName) 
       var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
@@ -116,13 +106,14 @@ exports.create = async (req, res) => {
           console.log(`User ${params.Message}'s question ${params.QuestionId} was just answered and answer id is ${params.answer_id}`);
           console.log("Answer is your question is" + data.AnswerText);
           logger.info("lambda hogaya" + fileName) 
-          res.send('Question has been answered');
+          return res.status(201).send(answer);
         }).catch(
           function(err) {
           console.error(err, err.stack);
+          return res.status(400).send(answer)
         });
 
-    return res.status(201).send(answer)
+    //return res.status(201).send(answer)
 }
 
 exports.deleteAnswer = async (req, res) => {
