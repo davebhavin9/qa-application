@@ -19,7 +19,7 @@ const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 81
 
 const File = db.file;
 const aws = require('aws-sdk');
-var sns = new AWS.SNS({apiVersion: '2010-03-31'});
+var sns = new aws.SNS({apiVersion: '2010-03-31'});
 
 const s3 = new aws.S3(
     {
