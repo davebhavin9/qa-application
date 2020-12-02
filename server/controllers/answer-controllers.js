@@ -100,9 +100,11 @@ exports.create = async (req, res) => {
         AnswerID: answer.answer_id,
         AnswerText:req.body.answer_text
       };
+      logger.info("lambda" + fileName) 
       var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
       publishTextPromise.then(
         function(data) {
+        logger.info("lambda start" + fileName) 
           console.log(`User ${params.Message}'s question ${params.QuestionId} was just answered and answer id is ${params.answer_id}`);
           console.log("Answer is your question is" + data.AnswerText);
           logger.info("lambda hogaya" + fileName) 
