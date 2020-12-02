@@ -100,75 +100,26 @@ exports.create = async (req, res) => {
     
     var result = await QModel.findByPk(req.params.question_id)
 
-
-    CService.getUserbyID( result.id, function (error, result) {
-        
+    Data.getUserID2(result, function (error, result) {
         if (error) {
-            if (error == "user unauthorized to access this data") {
-                res.statusCode = 401
-                logger.error("Unautherized in file question"+fileName);
-                res.statusMessage = "Unauthorised"
-                responseObj.error = error
-              return  res.send(responseObj);
-            }
-            else if (error == "data not found") {
-                res.statusCode = 200
-                logger.error("Not found in question"+fileName);
-                res.statusMessage = "NOT FOUND"
-                responseObj.error = error
-             return   res.send(responseObj);
-            }
-            else {
-                res.statusCode =400
-                logger.error("bad request in question"+fileName);
-                res.statusMessage = "BAD REQUEST"
-                responseObj.error = error
-            return    res.send(responseObj);
-            }
+            return callback(error, null);
         }
         else {
-            let endTime4 = new Date();
-            let totalTime4= StartTime4.getMilliseconds()-endTime4.getMilliseconds();
-            logger.info("Get user  ", totalTime4);
-            logger.info("GET req " + fileName) 
-            //sdc.timing('GET user by ID', endTime4)
-            res.statusCode = 200
-            res.statusMessage = "OK"
-            responseObj.result = result;
-
-            Data.getUserID2(result, function (error, result) {
-                if (error) {
-                    return callback(error, null);
-                }
-                else {
-                    var params = {
-                        Message: result.id,
-                        TopicArn: process.env.TopicARN
-                      };
-                      logger.info(result.id) 
-                      logger.info(params.TopicArn)
-                      sns.publish(params, function(err, data) {
-                        if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
-                        else    { 
-                
-                            logger.info(data)
-                            return res.status(201).send(answer); }          // successful response
-                      });
-                }
-            })
-
-
-
-            
+            var params = {
+                Message: result.id,
+                TopicArn: process.env.TopicARN
+              };
+              logger.info(result.id) 
+              logger.info(params.TopicArn)
+              sns.publish(params, function(err, data) {
+                if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
+                else    { 
+        
+                    logger.info(data)
+                    return res.status(201).send(answer); }          // successful response
+              });
         }
     })
-    
-
-
-
-
-    
-      
 
     //return res.status(201).send(answer)
 }
