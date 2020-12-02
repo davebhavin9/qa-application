@@ -96,12 +96,18 @@ exports.create = async (req, res) => {
     var params = {
         Message: result[0],
         TopicArn: process.env.TopicARN,
-        QuestionId:req.params.question_id,
-        AnswerID: answer.answer_id,
-        AnswerText:req.body.answer_text
+        "MessageAttributes": {
+            "Test": {
+              "Type": "String",
+              "Value": "TestString"
+            },
+            "TestBinary": {
+              "Type": "Binary",
+              "Value": "TestBinary"
+            }
+          }
       };
       logger.info(result[0] + fileName) 
-      
       var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
       logger.info(publishTextPromise)
       publishTextPromise.then(
