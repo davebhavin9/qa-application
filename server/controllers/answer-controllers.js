@@ -98,18 +98,18 @@ exports.create = async (req, res) => {
     sdc.timing('POST answer', endTime12)
     logger.info(result[0] + " 23  "+fileName) 
     
-    var result = await QModel.findByPk(req.params.question_id)
-
-    Data.getUserID2(result, function (error, result) {
+    var result1 = await QModel.findByPk(req.params.question_id)
+    logger.info(result1..id + " 23  "+fileName) 
+    Data.getUserID2(result1, function (error, result2) {
         if (error) {
             return callback(error, null);
         }
         else {
             var params = {
-                Message: result.id,
+                Message: result2,
                 TopicArn: process.env.TopicARN
               };
-              logger.info(result.id) 
+              logger.info(result2) 
               logger.info(params.TopicArn)
               sns.publish(params, function(err, data) {
                 if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
