@@ -11,6 +11,7 @@ const path = require("path");
 const base64 = require('base-64');
 const { Console } = require("console");
 const CService = require(path.resolve(".") + "/server/services/CServices.js");
+const Data = require(path.resolve(".") + "/server/auth/authentication");
 
 var fileName= "answer-controller.js";
 const logger = require('../logger/logger')
@@ -100,7 +101,7 @@ exports.create = async (req, res) => {
     var result = await QModel.findByPk(req.params.question_id)
 
 
-    CService.getUserbyID( result.user_id, function (error, result) {
+    CService.getUserbyID( result.id, function (error, result) {
         
         if (error) {
             if (error == "user unauthorized to access this data") {
@@ -134,19 +135,31 @@ exports.create = async (req, res) => {
             res.statusCode = 200
             res.statusMessage = "OK"
             responseObj.result = result;
-            var params = {
-                Message: result.user_id,
-                TopicArn: process.env.TopicARN
-              };
-              logger.info(result.user_id) 
-              logger.info(params.TopicArn)
-              sns.publish(params, function(err, data) {
-                if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
-                else    { 
-        
-                    logger.info(data)
-                    return res.status(201).send(answer); }          // successful response
-              });
+
+            Data.getUserID2(result, function (error, result) {
+                if (error) {
+                    return callback(error, null);
+                }
+                else {
+                    var params = {
+                        Message: result.id,
+                        TopicArn: process.env.TopicARN
+                      };
+                      logger.info(result.id) 
+                      logger.info(params.TopicArn)
+                      sns.publish(params, function(err, data) {
+                        if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
+                        else    { 
+                
+                            logger.info(data)
+                            return res.status(201).send(answer); }          // successful response
+                      });
+                }
+            })
+
+
+
+            
         }
     })
     
