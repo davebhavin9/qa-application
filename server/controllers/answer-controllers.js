@@ -102,8 +102,9 @@ exports.create = async (req, res) => {
       logger.info(result[0] + fileName) 
       logger.info(params.TopicArn)
       sns.publish(params, function(err, data) {
-        if (err){ console.log(err, err.stack); return res.status(400).send(answer)} // an error occurred
+        if (err){ logger.info(err);logger.info(err.stack); return res.status(400)} // an error occurred
         else    { 
+
             logger.info(data.Message)
             return res.status(201).send(answer); }          // successful response
       });
