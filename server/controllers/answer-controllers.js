@@ -2,6 +2,7 @@ const db = require("../models");
 const uuid= require('uuid');
 const QModel = db.questions;
 const User = db.users;
+require('dotenv').config();
 
 const Category = db.categories;
 const Answer = db.answers;
@@ -94,6 +95,7 @@ exports.create = async (req, res) => {
 
     var params = {
         Message: result[0],
+        TopicArn: process.env.TopicARN,
         QuestionId:req.params.question_id,
         AnswerID: answer.answer_id,
         AnswerText:req.body.answer_text
