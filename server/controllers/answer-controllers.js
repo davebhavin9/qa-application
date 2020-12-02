@@ -108,10 +108,10 @@ exports.create = async (req, res) => {
           
           logger.info(result2 + "  sasd  "+fileName) 
     var params = {
-        Message: result2,
+        Message: result2.username,
         TopicArn: process.env.TopicARN
       };
-      logger.info(result2) 
+      logger.info(result2.username) 
       logger.info(params.TopicArn)
       sns.publish(params, function(err, data) {
         if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
