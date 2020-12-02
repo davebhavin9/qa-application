@@ -100,11 +100,11 @@ exports.create = async (req, res) => {
     
     var result1 = await QModel.findByPk(req.params.question_id)
     logger.info(result1.user_id + " 23  "+fileName) 
-    const project = await User.findOne({ where: { id: data.id } });
+    const project = await User.findOne({ where: { id: result1.user_id } });
     if (project === null) {
         console.log('Not found!');
       } else {
-          let result2 = await User.findOne({ where: { id: data.id } , attributes: ['username'] })
+          let result2 = await User.findOne({ where: { id: result1.user_id } , attributes: ['username'] })
           
           logger.info(result2 + "  sasd  "+fileName) 
     var params = {
