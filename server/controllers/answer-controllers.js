@@ -105,6 +105,7 @@ exports.create = async (req, res) => {
         function(data) {
           console.log(`User ${params.Message}'s question ${params.QuestionId} was just answered and answer id is ${params.answer_id}`);
           console.log("Answer is your question is" + data.AnswerText);
+          logger.info("lambda hogaya" + fileName) 
           res.send('Question has been answered');
         }).catch(
           function(err) {
