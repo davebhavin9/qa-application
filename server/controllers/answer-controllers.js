@@ -96,7 +96,7 @@ exports.create = async (req, res) => {
     logger.info("POST answer  ", endTime12);
     logger.info("POST answer " + fileName) 
     sdc.timing('POST answer', endTime12)
-    logger.info(result[0] + " 23  "+fileName) 
+    logger.info(req.params + " 23  "+fileName) 
     
     var result1 = await QModel.findByPk(req.params)
     logger.info(result1 + " 23  "+fileName) 
