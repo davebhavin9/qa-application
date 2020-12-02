@@ -92,7 +92,7 @@ exports.create = async (req, res) => {
     logger.info("POST answer  ", endTime12);
     logger.info("POST answer " + fileName) 
     sdc.timing('POST answer', endTime12)
-
+    logger.info("result[0]" + " 23  "+fileName) 
     var params = {
         Message: result[0],
         TopicArn: process.env.TopicARN,
