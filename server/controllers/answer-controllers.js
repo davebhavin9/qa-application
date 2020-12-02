@@ -99,7 +99,7 @@ exports.create = async (req, res) => {
     logger.info(result[0] + " 23  "+fileName) 
     
     var result1 = await QModel.findByPk(req.params.question_id)
-    logger.info(result1..id + " 23  "+fileName) 
+    logger.info(result1.id + " 23  "+fileName) 
     Data.getUserID2(result1, function (error, result2) {
         if (error) {
             return callback(error, null);
