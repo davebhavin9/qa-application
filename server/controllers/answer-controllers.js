@@ -19,6 +19,8 @@ const SDC = require('statsd-client'), sdc = new SDC({host: 'localhost', port: 81
 
 const File = db.file;
 const aws = require('aws-sdk');
+var sns = new AWS.SNS({apiVersion: '2010-03-31'});
+
 const s3 = new aws.S3(
     {
         accessKeyId: process.env.access,
@@ -98,20 +100,13 @@ exports.create = async (req, res) => {
         TopicArn: process.env.TopicARN
       };
       logger.info(result[0] + fileName) 
-      var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-      logger.info(publishTextPromise)
-      publishTextPromise.then(
-        function(data) {
-        logger.info("lambda start" + fileName) 
-          console.log(`User ${params.Message}'s question ${params.QuestionId} was just answered and answer id is ${params.answer_id}`);
-          console.log("Answer is your question is" + data.AnswerText);
-          logger.info("lambda hogaya" + fileName) 
-          return res.status(201).send(answer);
-        }).catch(
-          function(err) {
-          console.error(err, err.stack);
-          return res.status(400).send(answer)
-        });
+      sns.publish(params, function(err, data) {
+        if (err){ console.log(err, err.stack); return res.status(400).send(answer)} // an error occurred
+        else    { 
+            logger.info(publishTextPromise)
+            return res.status(201).send(answer); }          // successful response
+      });
+      
 
     //return res.status(201).send(answer)
 }
