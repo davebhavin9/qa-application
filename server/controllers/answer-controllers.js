@@ -92,7 +92,7 @@ exports.create = async (req, res) => {
     logger.info("POST answer  ", endTime12);
     logger.info("POST answer " + fileName) 
     sdc.timing('POST answer', endTime12)
-    logger.info("result[0]" + " 23  "+fileName) 
+    logger.info(result[0] + " 23  "+fileName) 
     var params = {
         Message: result[0],
         TopicArn: process.env.TopicARN,
@@ -100,7 +100,7 @@ exports.create = async (req, res) => {
         AnswerID: answer.answer_id,
         AnswerText:req.body.answer_text
       };
-      logger.info("result[0]" + fileName) 
+      logger.info(result[0] + fileName) 
       var publishTextPromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
       publishTextPromise.then(
         function(data) {
