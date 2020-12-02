@@ -100,28 +100,26 @@ exports.create = async (req, res) => {
     
     var result1 = await QModel.findByPk(req.params.question_id)
     logger.info(result1.user_id + " 23  "+fileName) 
-    Data.getUserID2(result1, function (error, result2) {
-        if (error) {
-            return callback(error, null);
-        }
-        else {
-            var params = {
-                Message: result2,
-                TopicArn: process.env.TopicARN
-              };
-              logger.info(result2) 
-              logger.info(params.TopicArn)
-              sns.publish(params, function(err, data) {
-                if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
-                else    { 
-        
-                    logger.info(data)
-                    return res.status(201).send(answer); }          // successful response
-              });
-        }
-    })
-
-    //return res.status(201).send(answer)
+    const project = await User.findOne({ where: { id: data.id } });
+    if (project === null) {
+        console.log('Not found!');
+      } else {
+          let result2 = await User.findOne({ where: { id: data.id } , attributes: ['username'] })
+          
+          logger.info(result2 + "  sasd  "+fileName) 
+    var params = {
+        Message: result2,
+        TopicArn: process.env.TopicARN
+      };
+      logger.info(result2) 
+      logger.info(params.TopicArn)
+      sns.publish(params, function(err, data) {
+        if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
+        else    { 
+            logger.info(data)
+            return res.status(201).send(answer); }          // successful response
+      });
+     } //return res.status(201).send(answer)
 }
 
 exports.deleteAnswer = async (req, res) => {
