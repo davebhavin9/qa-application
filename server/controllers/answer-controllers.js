@@ -109,7 +109,17 @@ exports.create = async (req, res) => {
           logger.info(result2 + "  sasd  "+fileName) 
     var params = {
         Message: result2.username,
-        TopicArn: process.env.TopicARN
+        TopicArn: process.env.TopicARN,
+        MessageAttributes: {
+            'QuestionId': {
+              DataType: 'string', /* required */
+              BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+              StringValue: 'string'
+            },'AnswerID': {
+                DataType: 'string', /* required */
+                BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+                StringValue: 'string'
+              }}
       };
       logger.info(result2.username) 
       logger.info(params.TopicArn)
