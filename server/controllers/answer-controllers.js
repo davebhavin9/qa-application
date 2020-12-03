@@ -112,13 +112,13 @@ exports.create = async (req, res) => {
         TopicArn: process.env.TopicARN,
         MessageAttributes: {
             'QuestionId': {
-              DataType: 'string', /* required */
+              DataType: 'STRING_VALUE', /* required */
               BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-              StringValue: 'string'
+              StringValue: 'STRING_VALUE'
             },'AnswerID': {
-                DataType: 'string', /* required */
+                DataType: 'STRING_VALUE', /* required */
                 BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-                StringValue: 'string'
+                StringValue: 'STRING_VALUE'
               }}
       };
       logger.info(result2.username) 
