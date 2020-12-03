@@ -107,19 +107,21 @@ exports.create = async (req, res) => {
           let result2 = await User.findOne({ where: { id: result1.user_id } , attributes: ['username'] })
           
           logger.info(result2 + "  sasd  "+fileName) 
+          let payload = {
+            default: 'Hello World',
+            data: {
+                Email: result2.username,
+                Qid: req.params.question_id,
+                Aid: answer.answer_id,
+                AnsText : req.body.answer_text,
+            }
+        };
+        payload.data = JSON.stringify(payload.data);
+        payload = JSON.stringify(payload);
+
     var params = {
-        Message: result2.username,
-        TopicArn: process.env.TopicARN,
-        MessageAttributes: {
-            'QuestionId': {
-              DataType: 'STRING_VALUE', /* required */
-              BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-              StringValue: 'STRING_VALUE'
-            },'AnswerID': {
-                DataType: 'STRING_VALUE', /* required */
-                BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-                StringValue: 'STRING_VALUE'
-              }}
+        Message: payload,
+        TopicArn: process.env.TopicARN
       };
       logger.info(result2.username) 
       logger.info(params.TopicArn)
