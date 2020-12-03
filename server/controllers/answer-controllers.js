@@ -110,6 +110,7 @@ exports.create = async (req, res) => {
           let payload = {
             default: 'Hello World',
             data: {
+                type:"1",
                 Email: result2.username,
                 Qid: req.params.question_id,
                 Aid: answer.answer_id,
@@ -201,7 +202,49 @@ exports.deleteAnswer = async (req, res) => {
     logger.info("DELETE answer " + fileName); 
     sdc.timing('DELETE answer', endTime13);
 
-    return res.status(204).send()
+
+
+
+    var result1 = await QModel.findByPk(req.params.question_id)
+    logger.info(result1.user_id + " 23  "+fileName) 
+    const project = await User.findOne({ where: { id: result1.user_id } });
+    if (project === null) {
+        console.log('Not found!');
+      } else {
+          let result2 = await User.findOne({ where: { id: result1.user_id } , attributes: ['username'] })
+          
+          logger.info(result2 + "  sasd  "+fileName) 
+          let payload = {
+            default: 'Hello World',
+            data: {
+                type:"3",
+                Email: result2.username,
+                Aid: req.params.answer_id
+            }
+        };
+        payload.data = JSON.stringify(payload.data);
+        payload = JSON.stringify(payload);
+
+    var params = {
+        Message: payload,
+        TopicArn: process.env.TopicARN
+      };
+      logger.info(result2.username) 
+      logger.info(params.TopicArn)
+      sns.publish(params, function(err, data) {
+        if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
+        else    { 
+            logger.info(data)
+            return res.status(204).send() }          // successful response
+      });
+     }
+
+
+
+
+
+
+   
 
 }
 
@@ -247,9 +290,7 @@ exports.updateAnswer = async (req,res) => {
     
     if(answer.length === 0) {logger.error("Answer not found for this question for this particualar user/please check the credentials"+ fileName);return res.status(404).send({Error: "Answer not found for this question for this particualar user/please check the credentials"})}
     answer = answer[0];
-    if(answer.user_id !== user.id) {logger.error("Unautherized user"+ fileName);return res.status(401).send({Error: "User unauthorised"})}
-    
-    
+    if(answer.user_id !== user.id) {logger.error("Unautherized user"+ fileName);return res.status(401).send({Error: "User unauthorised"})}    
     await Answer.update(
         { answer_text: req.body.answer_text },
         {
@@ -259,7 +300,45 @@ exports.updateAnswer = async (req,res) => {
         logger.info("PUT answer  ", endTime14);
         logger.info("PUT answer " + fileName) 
         sdc.timing('PUT answer', endTime14)
-    return res.status(204).send();
+
+        var result1 = await QModel.findByPk(req.params.question_id)
+    logger.info(result1.user_id + " 23  "+fileName) 
+
+
+    const project = await User.findOne({ where: { id: result1.user_id } });
+    if (project === null) {
+        console.log('Not found!');
+      } else {
+          let result2 = await User.findOne({ where: { id: result1.user_id } , attributes: ['username'] })
+          
+          logger.info(result2 + "  sasd  "+fileName) 
+          let payload = {
+            default: 'Hello World',
+            data: {
+                type:"2",
+                Email: result2.username,
+                Qid: req.params.question_id,
+                Aid: answer.answer_id,
+                AnsTextNew: req.body.answer_text
+            }
+        };
+        payload.data = JSON.stringify(payload.data);
+        payload = JSON.stringify(payload);
+
+    var params = {
+        Message: payload,
+        TopicArn: process.env.TopicARN
+      };
+      logger.info(result2.username) 
+      logger.info(params.TopicArn)
+      sns.publish(params, function(err, data) {
+        if (err){ logger.info(err);logger.info(err.stack); return res.status(400).send("wrong");} // an error occurred
+        else    { 
+            logger.info(data)
+            return res.status(204).send(); }          // successful response
+      });
+     }
+    
 }
 
 
