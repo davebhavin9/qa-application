@@ -319,7 +319,7 @@ exports.updateAnswer = async (req,res) => {
                 Email: result2.username,
                 Qid: req.params.question_id,
                 Aid: answer.answer_id,
-                AnsTextNew: req.body.answer_text
+                AnsText: req.body.answer_text
             }
         };
         payload.data = JSON.stringify(payload.data);
