@@ -219,7 +219,8 @@ exports.deleteAnswer = async (req, res) => {
             data: {
                 type:"3",
                 Email: result2.username,
-                Aid: req.params.answer_id
+                Aid: req.params.answer_id,
+                Qid: req.params.question_id
             }
         };
         payload.data = JSON.stringify(payload.data);
