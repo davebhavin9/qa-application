@@ -4,9 +4,9 @@
 name: Node.js CI
 
 on:
-  workflow_dispatch: 
-    push:
-      branches: [ master ]
+  push:
+    branches: [ master ]
+  workflow_dispatch:
 
 env:
   artifact_name: webapp-${{github.run_number}}.zip
