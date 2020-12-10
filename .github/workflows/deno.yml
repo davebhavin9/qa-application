@@ -1,39 +1,59 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow will install Deno and run tests across stable and nightly builds on Windows, Ubuntu and macOS.
-# For more information see: https://github.com/denolib/setup-deno
-
-name: Deno
-
+name: CICD
 on:
+  workflow_dispatch: 
   push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+    branches: [ master ]
 
+env:
+  artifact_name: webapp-${{github.run_number}}.zip
+  s3_bucket_name: codedeploy-davebhavin-me
+  AWS_AMI_REGION: ${{ secrets.AWS_AMI_REGION }}
+  CD_APP_NAME: ${{ secrets.CD_APP_NAME }}
+  D_APP_DEPLOY_GNAME: ${{ secrets.D_APP_DEPLOY_GNAME }}
 jobs:
-  test:
-    runs-on: ${{ matrix.os }} # runs a test on Ubuntu, Windows and macOS
+  build:
+
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        deno: ["v1.x", "nightly"]
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        node-version: [8.x]
 
     steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Setup Deno
-        uses: denolib/setup-deno@c7d7968ad4a59c159a777f79adddad6872ee8d96
-        with:
-          deno-version: ${{ matrix.deno }} # tests across multiple Deno versions
+    - name: Configure AWS credentials from Test account
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
 
-      - name: Cache Dependencies
-        run: deno cache deps.ts
-
-      - name: Run Tests
-        run: deno test -A --unstable
+    - name: copy to s3
+      run: |
+        mkdir cd_artifact
+        cd cd_artifact
+        cp ../*.json .
+        cp ../*.md .
+        cp -r ../server .
+        cp -r ../test .
+        cp -r ../.github/workflows .
+        cp -r ../script .
+        cp ../*.yml .
+        zip -r webapp .
+        ls -a
+        aws s3 cp webapp.zip s3://${s3_bucket_name}
+        echo 'upload to s3 done'
+    - name: deploy
+      run: |
+          output=$(aws deploy create-deployment \
+          --application-name webapp \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name webapp-group \
+          --description "CSYE6255 - CodeDeploy" \
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},key=webapp.zip,bundleType=zip \
+          --region us-east-1 \
+          --output json)
+          echo $output
+          dId=$(echo $output | jq -r '.deploymentId')
+          aws deploy wait deployment-successful --deployment-id $dId
