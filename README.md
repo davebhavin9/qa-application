@@ -44,3 +44,8 @@ http://localhost:{PORT_ID}/ +
 16) DELETE /v1​/question​/{question_id}​/answer​/{answer_id}​/file​/{file_id}
 17) POST ​/v1​/question​/{question_id}​/answer​/{answer_id}​/file
 ```
+# For importing SSL certificate to AWS ACM use following command
+```
+aws acm import-certificate --certificate fileb://prod_davebhavin_me.crt --private-key fileb://private.key --certificate-chain fileb://prod_davebhavin_me.ca-bundle 
+```
+( Note- AWS_PROFILE before running this command and replace .crt, .ca-bundle and .key files with your own)
