@@ -1,5 +1,3 @@
-# webapp
-# Repo for CSYE6225-Fall2020
 
 # Requirements.
 1)You must have node and package manager(npm/yarn) installed to run this application
